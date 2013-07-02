@@ -1,0 +1,39 @@
+#Author: Jannik Waschkau, jannik@somyeol.com
+options
+{
+}
+
+define MARMALADE
+
+subproject iwgx
+
+includepaths
+{
+    ./
+	./source
+	./source/libraries
+}
+
+files
+{
+	[Source]
+    (./source)
+    SCMLpp.h
+    SCMLpp.cpp
+    
+    [Renderer]
+    (./source/renderers)
+    SCML_marmalade.h
+    SCML_marmalade.cpp
+    
+    [Libraries]
+    (./source/libraries)
+    XML_Helpers.h
+    XML_Helpers.cpp
+    tinyxmlparser.cpp
+    tinyxmlerror.cpp
+    tinyxml.h
+    tinyxml.cpp
+    tinystr.h
+    tinystr.cpp
+}
