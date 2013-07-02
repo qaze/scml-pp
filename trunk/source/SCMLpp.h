@@ -219,6 +219,8 @@ public:
         Folder();
         Folder(TiXmlElement* elem);
 
+        ~Folder();
+
         bool load(TiXmlElement* elem);
         void log(int recursive_depth = 0) const;
         void clear();
@@ -263,6 +265,8 @@ public:
 
         Atlas();
         Atlas(TiXmlElement* elem);
+
+        ~Atlas();
 
         bool load(TiXmlElement* elem);
         void log(int recursive_depth = 0) const;
@@ -317,6 +321,8 @@ public:
         Entity();
         Entity(TiXmlElement* elem);
 
+        ~Entity();
+
         bool load(TiXmlElement* elem);
         void log(int recursive_depth = 0) const;
         void clear();
@@ -343,6 +349,8 @@ public:
                 Mainline();
                 Mainline(TiXmlElement* elem);
 
+                ~Mainline();
+
                 bool load(TiXmlElement* elem);
                 void log(int recursive_depth = 0) const;
                 void clear();
@@ -360,6 +368,8 @@ public:
 
                     Key();
                     Key(TiXmlElement* elem);
+
+                    ~Key();
 
                     bool load(TiXmlElement* elem);
                     void log(int recursive_depth = 0) const;
@@ -557,6 +567,8 @@ public:
             Animation();
             Animation(TiXmlElement* elem);
 
+            ~Animation();
+
             bool load(TiXmlElement* elem);
             void log(int recursive_depth = 0) const;
             void clear();
@@ -576,6 +588,8 @@ public:
 
                 Timeline();
                 Timeline(TiXmlElement* elem);
+
+                ~Timeline();
 
                 bool load(TiXmlElement* elem);
                 void log(int recursive_depth = 0) const;
@@ -599,6 +613,8 @@ public:
 
                     Key();
                     Key(TiXmlElement* elem);
+
+                    ~Key();
 
                     bool load(TiXmlElement* elem);
                     void log(int recursive_depth = 0) const;
@@ -869,6 +885,8 @@ public:
 
             Mainline(SCML::Data::Entity::Animation::Mainline* mainline);
 
+            ~Mainline();
+
             void clear();
 
             class Key;
@@ -883,6 +901,8 @@ public:
                 //Meta_Data* meta_data;
 
                 Key(SCML::Data::Entity::Animation::Mainline::Key* key);
+
+                ~Key();
 
                 void clear();
 
@@ -1064,6 +1084,8 @@ public:
 
         Animation(SCML::Data::Entity::Animation* animation);
 
+        ~Animation();
+
         void clear();
 
 
@@ -1080,6 +1102,8 @@ public:
             //Meta_Data* meta_data;
 
             Timeline(SCML::Data::Entity::Animation::Timeline* timeline);
+
+            ~Timeline();
 
             void clear();
 
@@ -1100,6 +1124,8 @@ public:
                 bool has_object;
 
                 Key(SCML::Data::Entity::Animation::Timeline::Key* key);
+
+                ~Key();
 
                 void clear();
 

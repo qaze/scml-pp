@@ -494,6 +494,10 @@ Data::Folder::Folder(TiXmlElement* elem)
     load(elem);
 }
 
+Data::Folder::~Folder(){
+    clear();
+}
+
 bool Data::Folder::load(TiXmlElement* elem)
 {
     id = xmlGetIntAttr(elem, "id", 0);
@@ -629,6 +633,10 @@ Data::Atlas::Atlas(TiXmlElement* elem)
     : id(0)
 {
     load(elem);
+}
+
+Data::Atlas::~Atlas(){
+    clear();
 }
 
 bool Data::Atlas::load(TiXmlElement* elem)
@@ -812,6 +820,10 @@ Data::Entity::Entity(TiXmlElement* elem)
     load(elem);
 }
 
+Data::Entity::~Entity(){
+    clear();
+}
+
 bool Data::Entity::load(TiXmlElement* elem)
 {
     id = xmlGetIntAttr(elem, "id", 0);
@@ -974,6 +986,10 @@ void Data::Entity::Animation::log(int recursive_depth) const
     
 }
 
+Data::Entity::Animation::~Animation(){
+    clear();
+}
+
 void Data::Entity::Animation::clear()
 {
     id = 0;
@@ -1009,6 +1025,10 @@ Data::Entity::Animation::Mainline::Mainline()
 Data::Entity::Animation::Mainline::Mainline(TiXmlElement* elem)
 {
     load(elem);
+}
+
+Data::Entity::Animation::Mainline::~Mainline(){
+    clear();
 }
 
 bool Data::Entity::Animation::Mainline::load(TiXmlElement* elem)
@@ -1207,6 +1227,10 @@ void Data::Entity::Animation::Mainline::Key::log(int recursive_depth) const
         }
     }
     SCML_END_MAP_FOREACH_CONST;
+}
+
+Data::Entity::Animation::Mainline::Key::~Key(){
+    clear();
 }
 
 void Data::Entity::Animation::Mainline::Key::clear()
@@ -1619,6 +1643,10 @@ Data::Entity::Animation::Timeline::Timeline(TiXmlElement* elem)
     load(elem);
 }
 
+Data::Entity::Animation::Timeline::~Timeline(){
+    clear();
+}
+
 bool Data::Entity::Animation::Timeline::load(TiXmlElement* elem)
 {
     id = xmlGetIntAttr(elem, "id", 0);
@@ -1725,6 +1753,10 @@ Data::Entity::Animation::Timeline::Key::Key(TiXmlElement* elem)
     : id(0), time(0), curve_type("linear"), c1(0.0f), c2(0.0f), spin(1), meta_data(NULL)
 {
     load(elem);
+}
+
+Data::Entity::Animation::Timeline::Key::~Key(){
+    clear();
 }
 
 bool Data::Entity::Animation::Timeline::Key::load(TiXmlElement* elem)
@@ -2867,6 +2899,10 @@ Entity::Animation::Animation(SCML::Data::Entity::Animation* animation)
     SCML_END_MAP_FOREACH_CONST;
 }
 
+Entity::Animation::~Animation(){
+    clear();
+}
+
 void Entity::Animation::clear()
 {
     SCML_BEGIN_MAP_FOREACH_CONST(timelines, int, Timeline*, item)
@@ -2885,6 +2921,10 @@ Entity::Animation::Mainline::Mainline(SCML::Data::Entity::Animation::Mainline* m
         SCML_MAP_INSERT(keys, item->id, new Key(item));
     }
     SCML_END_MAP_FOREACH_CONST;
+}
+
+Entity::Animation::Mainline::~Mainline(){
+    clear();
 }
 
 void Entity::Animation::Mainline::clear()
@@ -2932,6 +2972,10 @@ Entity::Animation::Mainline::Key::Key(SCML::Data::Entity::Animation::Mainline::K
         }
     }
     SCML_END_MAP_FOREACH_CONST;
+}
+
+Entity::Animation::Mainline::Key::~Key(){
+    clear();
 }
 
 void Entity::Animation::Mainline::Key::clear()
@@ -3005,6 +3049,10 @@ Entity::Animation::Timeline::Timeline(SCML::Data::Entity::Animation::Timeline* t
     SCML_END_MAP_FOREACH_CONST;
 }
 
+Entity::Animation::Timeline::~Timeline(){
+    clear();
+}
+
 void Entity::Animation::Timeline::clear()
 {
     SCML_BEGIN_MAP_FOREACH_CONST(keys, int, Key*, item)
@@ -3021,6 +3069,10 @@ Entity::Animation::Timeline::Key::Key(SCML::Data::Entity::Animation::Timeline::K
 {
     
 }
+Entity::Animation::Timeline::Key::~Key(){
+    clear();
+}
+
 
 void Entity::Animation::Timeline::Key::clear()
 {
