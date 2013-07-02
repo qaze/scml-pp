@@ -1,0 +1,24 @@
+subproject ../../scml-pp
+
+#define USE_SUBPIXEL
+
+includepath
+{
+    ../../
+	../../source
+	../../source/renderers
+	../../source/libraries
+}
+
+files
+{
+    [Source]
+	main.cpp
+    testbed.h
+    testbed.cpp
+}
+
+options
+{
+    s3e-data-dir="../../samples"
+}

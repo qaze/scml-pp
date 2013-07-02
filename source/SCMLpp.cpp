@@ -6,7 +6,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 
-#ifndef _MSC_VER
+#if !defined(_MSC_VER) || defined(MARMALADE)
     #include "libgen.h"
     #include <algorithm>
 #endif
@@ -19,7 +19,7 @@ namespace SCML
 {
 
 // Visual Studio doesn't have dirname?
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(MARMALADE)
     // FIXME: This breaks the STL abstraction
     SCML_STRING dirname(SCML_STRING source)
     {

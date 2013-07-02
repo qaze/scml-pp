@@ -23,7 +23,7 @@ int xmlGetIntAttr(TiXmlElement* elem, const SCML_STRING& attribute, int default_
 float xmlGetFloatAttr(TiXmlElement* elem, const SCML_STRING& attribute);
 float xmlGetFloatAttr(TiXmlElement* elem, const SCML_STRING& attribute, float default_value);
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(MARMALADE)
     #define snprintf c99_snprintf
     int c99_snprintf(char* str, size_t size, const char* format, ...);
 #endif

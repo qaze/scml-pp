@@ -2,7 +2,7 @@
 
 // Visual Studio does not support snprintf properly.
 // This is from Valentin Milea on Stack Overflow.  http://stackoverflow.com/questions/2915672/snprintf-and-visual-studio-2010/8712996#8712996
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(MARMALADE)
 
     int c99_vsnprintf(char* str, size_t size, const char* format, va_list ap)
     {
@@ -49,7 +49,7 @@ bool toBool(const SCML_STRING& str)
         return true;
     if(toLower(str) == "false")
         return false;
-    return atoi(SCML_TO_CSTRING(str));
+    return atoi(SCML_TO_CSTRING(str)) != 0;
 }
 
 int toInt(const SCML_STRING& str)
@@ -59,7 +59,7 @@ int toInt(const SCML_STRING& str)
 
 float toFloat(const SCML_STRING& str)
 {
-    return atof(SCML_TO_CSTRING(str));
+    return (float)atof(SCML_TO_CSTRING(str));
 }
 
 
