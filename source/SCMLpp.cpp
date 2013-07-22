@@ -2537,9 +2537,6 @@ inline float lerp(float a, float b, float t)
 // This is for rotating untranslated points and offsetting them to a new origin.
 static void rotate_point(float& x, float& y, float angle, float origin_x, float origin_y, bool flipped)
 {
-    if(flipped)
-        angle = -angle;
-    
     float s = sinf(angle*M_PI/180);
     float c = cosf(angle*M_PI/180);
     float xnew = (x * c) - (y * s);
@@ -2626,7 +2623,7 @@ void Entity::draw_simple_object(Animation::Mainline::Key::Object* obj1)
     rotate_point(sprite_x, sprite_y, obj_transform.angle, obj_transform.x, obj_transform.y, flipped);
     
     // Let the renderer draw it
-    draw_internal(obj1->folder, obj1->file, sprite_x, sprite_y, flipped? -obj_transform.angle : obj_transform.angle, obj_transform.scale_x, obj_transform.scale_y);
+    draw_internal(obj1->folder, obj1->file, sprite_x, sprite_y, obj_transform.angle, obj_transform.scale_x, obj_transform.scale_y);
 }
 
 
@@ -2693,7 +2690,7 @@ void Entity::draw_tweened_object(Animation::Mainline::Key::Object_Ref* ref1, Ani
         rotate_point(sprite_x, sprite_y, obj_transform.angle, obj_transform.x, obj_transform.y, flipped);
         
         // Let the renderer draw it
-        draw_internal(obj1->folder, obj1->file, sprite_x, sprite_y, flipped? -obj_transform.angle : obj_transform.angle, obj_transform.scale_x, obj_transform.scale_y);
+        draw_internal(obj1->folder, obj1->file, sprite_x, sprite_y, obj_transform.angle, obj_transform.scale_x, obj_transform.scale_y);
     }
 }
 
