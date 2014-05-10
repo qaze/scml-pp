@@ -94,6 +94,7 @@ public:
 
     bool load(const SCML_STRING& file);
     bool load(TiXmlElement* elem);
+    bool fromTextData(const char* data);
     Data& clone(const Data& copy, bool skip_base = false);
     void log(int recursive_depth = 0) const;
     void clear();
@@ -1209,6 +1210,7 @@ public:
 
     Entity();
     Entity(SCML::Data* data, int entity, int animation = 0, int key = 0);
+    Entity(SCML::Data* data, const char* entityName, int animation = 0, int key = 0);
     virtual ~Entity();
 
     virtual void load(SCML::Data* data);
@@ -1269,10 +1271,12 @@ public:
      * \param animation Integer animation ID
      */
     virtual void startAnimation(int animation);
+    virtual void startAnimation(const char* animationName);
 
 
     int getNumAnimations() const;
     Animation* getAnimation(int animation) const;
+    Animation* getAnimation(const char* animationName) const;
     Animation::Mainline::Key* getKey(int animation, int key) const;
     Animation::Mainline::Key::Bone_Ref* getBoneRef(int animation, int key, int bone_ref) const;
     Animation::Mainline::Key::Object_Ref* getObjectRef(int animation, int key, int object_ref) const;
