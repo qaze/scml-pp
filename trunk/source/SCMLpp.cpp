@@ -1,17 +1,21 @@
+#define _USE_MATH_DEFINES // for MSVC
+
 #include "SCMLpp.h"
 
 #include "XML_Helpers.h"
 #include "stdarg.h"
 #include <climits>
-#define _USE_MATH_DEFINES
 #include <cmath>
+#include <algorithm>
 
 #if !defined(_MSC_VER) || defined(MARMALADE)
     #include "libgen.h"
-    #include <algorithm>
 #endif
 
 #ifndef PATH_MAX
+	#ifdef _MSC_VER
+		#include <windows.h>  // for MAX_PATH
+	#endif
     #define PATH_MAX MAX_PATH
 #endif
 
@@ -112,6 +116,22 @@ bool Data::load(const SCML_STRING& file)
         return false;
     }
     
+    load(root);
+    
+    doc.Clear();
+    return true;
+}
+
+bool Data::fromTextData(const char* data) {
+    TiXmlDocument doc;
+	
+	doc.Parse(data);
+    TiXmlElement* root = doc.FirstChildElement("spriter_data");
+    if(root == NULL)
+    {
+        SCML::log("SCML::Data could not be parsed: No spriter_data XML element.\n");
+        return false;
+    }
     load(root);
     
     doc.Clear();
@@ -500,7 +520,7 @@ Data::Folder::~Folder(){
 
 bool Data::Folder::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     name = xmlGetStringAttr(elem, "name", "");
     
     for(TiXmlElement* child = elem->FirstChildElement("file"); child != NULL; child = child->NextSiblingElement("file"))
@@ -543,7 +563,7 @@ void Data::Folder::log(int recursive_depth) const
 
 void Data::Folder::clear()
 {
-    id = 0;
+    this->id = 0;
     name.clear();
     
     SCML_BEGIN_MAP_FOREACH_CONST(files, int, File*, item)
@@ -571,7 +591,7 @@ Data::Folder::File::File(TiXmlElement* elem)
 bool Data::Folder::File::load(TiXmlElement* elem)
 {
     type = xmlGetStringAttr(elem, "type", "image");
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     name = xmlGetStringAttr(elem, "name", "");
     pivot_x = xmlGetFloatAttr(elem, "pivot_x", 0.0f);
     pivot_y = xmlGetFloatAttr(elem, "pivot_y", 0.0f);
@@ -607,7 +627,7 @@ void Data::Folder::File::log(int recursive_depth) const
 void Data::Folder::File::clear()
 {
     type = "image";
-    id = 0;
+    this->id = 0;
     name.clear();
     pivot_x = 0.0f;
     pivot_y = 0.0f;
@@ -641,7 +661,7 @@ Data::Atlas::~Atlas(){
 
 bool Data::Atlas::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     data_path = xmlGetStringAttr(elem, "data_path", "");
     image_path = xmlGetStringAttr(elem, "image_path", "");
     
@@ -686,7 +706,7 @@ void Data::Atlas::log(int recursive_depth) const
 
 void Data::Atlas::clear()
 {
-    id = 0;
+    this->id = 0;
     data_path.clear();
     image_path.clear();
     
@@ -714,7 +734,7 @@ Data::Atlas::Folder::Folder(TiXmlElement* elem)
 
 bool Data::Atlas::Folder::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     name = xmlGetStringAttr(elem, "name", "");
     
     for(TiXmlElement* child = elem->FirstChildElement("image"); child != NULL; child = child->NextSiblingElement("image"))
@@ -757,7 +777,7 @@ void Data::Atlas::Folder::log(int recursive_depth) const
 
 void Data::Atlas::Folder::clear()
 {
-    id = 0;
+    this->id = 0;
     name.clear();
     
     SCML_BEGIN_MAP_FOREACH_CONST(images, int, Image*, item)
@@ -784,7 +804,7 @@ Data::Atlas::Folder::Image::Image(TiXmlElement* elem)
 
 bool Data::Atlas::Folder::Image::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     full_path = xmlGetStringAttr(elem, "full_path", "");
     
     return true;
@@ -798,7 +818,7 @@ void Data::Atlas::Folder::Image::log(int recursive_depth) const
 
 void Data::Atlas::Folder::Image::clear()
 {
-    id = 0;
+    this->id = 0;
     full_path.clear();
 }
 
@@ -826,7 +846,7 @@ Data::Entity::~Entity(){
 
 bool Data::Entity::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     name = xmlGetStringAttr(elem, "name", "");
     
     TiXmlElement* meta_data_child = elem->FirstChildElement("meta_data");
@@ -883,7 +903,7 @@ void Data::Entity::log(int recursive_depth) const
 
 void Data::Entity::clear()
 {
-    id = 0;
+    this->id = 0;
     name.clear();
     delete meta_data;
     meta_data = NULL;
@@ -916,7 +936,7 @@ Data::Entity::Animation::Animation(TiXmlElement* elem)
 
 bool Data::Entity::Animation::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     name = xmlGetStringAttr(elem, "name", "");
     length = xmlGetIntAttr(elem, "length", 0);
     looping = xmlGetStringAttr(elem, "looping", "true");
@@ -992,7 +1012,7 @@ Data::Entity::Animation::~Animation(){
 
 void Data::Entity::Animation::clear()
 {
-    id = 0;
+    this->id = 0;
     name.clear();
     length = 0;
     looping = "true";
@@ -1097,7 +1117,7 @@ Data::Entity::Animation::Mainline::Key::Key(TiXmlElement* elem)
 
 bool Data::Entity::Animation::Mainline::Key::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     time = xmlGetIntAttr(elem, "time", 0);
     
     TiXmlElement* meta_data_child = elem->FirstChildElement("meta_data");
@@ -1235,7 +1255,7 @@ Data::Entity::Animation::Mainline::Key::~Key(){
 
 void Data::Entity::Animation::Mainline::Key::clear()
 {
-    id = 0;
+    this->id = 0;
     time = 0;
     
     delete meta_data;
@@ -1279,7 +1299,7 @@ Data::Entity::Animation::Mainline::Key::Bone::Bone(TiXmlElement* elem)
 
 bool Data::Entity::Animation::Mainline::Key::Bone::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     parent = xmlGetIntAttr(elem, "parent", -1);
     x = xmlGetFloatAttr(elem, "x", 0.0f);
     y = xmlGetFloatAttr(elem, "y", 0.0f);
@@ -1328,7 +1348,7 @@ void Data::Entity::Animation::Mainline::Key::Bone::log(int recursive_depth) cons
 
 void Data::Entity::Animation::Mainline::Key::Bone::clear()
 {
-    id = 0;
+    this->id = 0;
     parent = -1;
     x = 0.0f;
     y = 0.0f;
@@ -1363,7 +1383,7 @@ Data::Entity::Animation::Mainline::Key::Bone_Ref::Bone_Ref(TiXmlElement* elem)
 
 bool Data::Entity::Animation::Mainline::Key::Bone_Ref::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     parent = xmlGetIntAttr(elem, "parent", -1);
     timeline = xmlGetIntAttr(elem, "timeline", 0);
     key = xmlGetIntAttr(elem, "key", 0);
@@ -1382,7 +1402,7 @@ void Data::Entity::Animation::Mainline::Key::Bone_Ref::log(int recursive_depth) 
 
 void Data::Entity::Animation::Mainline::Key::Bone_Ref::clear()
 {
-    id = 0;
+    this->id = 0;
     parent = -1;
     timeline = 0;
     key = 0;
@@ -1407,7 +1427,7 @@ Data::Entity::Animation::Mainline::Key::Object::Object(TiXmlElement* elem)
 
 bool Data::Entity::Animation::Mainline::Key::Object::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     parent = xmlGetIntAttr(elem, "parent", -1);
     object_type = xmlGetStringAttr(elem, "object_type", "sprite");
     atlas = xmlGetIntAttr(elem, "atlas", 0);
@@ -1535,7 +1555,7 @@ void Data::Entity::Animation::Mainline::Key::Object::log(int recursive_depth) co
 
 void Data::Entity::Animation::Mainline::Key::Object::clear()
 {
-    id = 0;
+    this->id = 0;
     parent = -1;
     object_type = "sprite";
     atlas = 0;
@@ -1597,7 +1617,7 @@ Data::Entity::Animation::Mainline::Key::Object_Ref::Object_Ref(TiXmlElement* ele
 
 bool Data::Entity::Animation::Mainline::Key::Object_Ref::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     parent = xmlGetIntAttr(elem, "parent", -1);
     timeline = xmlGetIntAttr(elem, "timeline", 0);
     key = xmlGetIntAttr(elem, "key", 0);
@@ -1618,7 +1638,7 @@ void Data::Entity::Animation::Mainline::Key::Object_Ref::log(int recursive_depth
 
 void Data::Entity::Animation::Mainline::Key::Object_Ref::clear()
 {
-    id = 0;
+    this->id = 0;
     parent = -1;
     timeline = 0;
     key = 0;
@@ -1649,7 +1669,7 @@ Data::Entity::Animation::Timeline::~Timeline(){
 
 bool Data::Entity::Animation::Timeline::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     object_type = xmlGetStringAttr(elem, "object_type", "sprite");
     variable_type = xmlGetStringAttr(elem, "variable_type", "string");
     
@@ -1722,7 +1742,7 @@ void Data::Entity::Animation::Timeline::log(int recursive_depth) const
 
 void Data::Entity::Animation::Timeline::clear()
 {
-    id = 0;
+    this->id = 0;
     name.clear();
     object_type = "sprite";
     variable_type = "string";
@@ -1761,7 +1781,7 @@ Data::Entity::Animation::Timeline::Key::~Key(){
 
 bool Data::Entity::Animation::Timeline::Key::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     time = xmlGetIntAttr(elem, "time", 0);
     curve_type = xmlGetStringAttr(elem, "curve_type", "linear");
     c1 = xmlGetFloatAttr(elem, "c1", 0.0f);
@@ -1831,7 +1851,7 @@ void Data::Entity::Animation::Timeline::Key::log(int recursive_depth) const
 
 void Data::Entity::Animation::Timeline::Key::clear()
 {
-    id = 0;
+    this->id = 0;
     time = 0;
     curve_type = "linear";
     c1 = 0.0f;
@@ -2236,7 +2256,7 @@ Data::Character_Map::Character_Map(TiXmlElement* elem)
 
 bool Data::Character_Map::load(TiXmlElement* elem)
 {
-    id = xmlGetIntAttr(elem, "id", 0);
+    this->id = xmlGetIntAttr(elem, "id", 0);
     name = xmlGetStringAttr(elem, "name", "");
     
     TiXmlElement* child = elem->FirstChildElement("map");
@@ -2263,7 +2283,7 @@ void Data::Character_Map::log(int recursive_depth) const
 
 void Data::Character_Map::clear()
 {
-    id = 0;
+    this->id = 0;
     name.clear();
     
     map.clear();
@@ -2436,6 +2456,21 @@ Entity::Entity(SCML::Data* data, int entity, int animation, int key)
     load(data);
 }
 
+Entity::Entity(SCML::Data* data, const char* entityName, int animation, int key)
+    : entity(-1), animation(animation), key(key), time(0)
+{
+    load(data);
+    SCML_BEGIN_MAP_FOREACH_CONST(data->entities, int, SCML::Data::Entity*, entity_ptr)
+    {
+    	if (std::strcmp( entity_ptr->name.c_str(), entityName ) == 0) 
+    	{
+    		entity = entity_ptr->id;
+    		break;
+    	}
+    }
+	SCML_END_MAP_FOREACH_CONST;
+}
+
 Entity::~Entity()
 {
     clear();
@@ -2477,6 +2512,18 @@ void Entity::clear()
 void Entity::startAnimation(int animation)
 {
     this->animation = animation;
+    key = 0;
+    time = 0;
+}
+
+void Entity::startAnimation(const char* animationName)
+{
+    SCML::Entity::Animation* animation_ptr = getAnimation(animationName);
+	if (animation_ptr == NULL) {
+		this->animation = -1;
+	} else {	
+    	this->animation = animation_ptr->id;
+    }
     key = 0;
     time = 0;
 }
@@ -3115,6 +3162,19 @@ int Entity::getNumAnimations() const
 Entity::Animation* Entity::getAnimation(int animation) const
 {
     return SCML_MAP_FIND(animations, animation);
+}
+
+Entity::Animation* Entity::getAnimation(const char* animationName) const
+{
+    SCML_BEGIN_MAP_FOREACH_CONST(animations, int, Entity::Animation*, anim_ptr)
+    {
+    	if (std::strcmp( anim_ptr->name.c_str(), animationName ) == 0) 
+    	{
+    		return anim_ptr;
+    	}
+    }
+    SCML_END_MAP_FOREACH_CONST;
+    return NULL;
 }
 
 Entity::Animation::Mainline::Key* Entity::getKey(int animation, int key) const
