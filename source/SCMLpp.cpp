@@ -2656,8 +2656,7 @@ void Entity::draw(float x, float y, float angle, float scale_x, float scale_y)
         }
         else
         {
-            Animation::Mainline::Key::Object_Container nextitem = SCML_MAP_FIND(nextkey_ptr->objects, _iter_e->first);  // FIXME: Breaks STL abstraction
-            draw_tweened_object(item.object_ref, nextitem.object_ref);
+            draw_tweened_object(item.object_ref, nextKeyID);
         }
     }
     SCML_END_MAP_FOREACH_CONST;
@@ -2704,16 +2703,14 @@ void Entity::draw_simple_object(Animation::Mainline::Key::Object* obj1)
 }
 
 
-void Entity::draw_tweened_object(Animation::Mainline::Key::Object_Ref* ref1, Animation::Mainline::Key::Object_Ref* ref2)
+void Entity::draw_tweened_object(Animation::Mainline::Key::Object_Ref* ref1, int nextKey)
 {
     if(ref1 == NULL)
         return;
-    if(ref2 == NULL)
-        ref2 = ref1;
     // Dereference object_ref and get the next one in the timeline for tweening
     Animation* animation_ptr = getAnimation(animation);  // Need this only if looping...
     Animation::Timeline::Key* t_key1 = getTimelineKey(animation, ref1->timeline, ref1->key);
-    Animation::Timeline::Key* t_key2 = getTimelineKey(animation, ref2->timeline, ref2->key);
+    Animation::Timeline::Key* t_key2 = getTimelineKey(animation, ref1->timeline, nextKey);
     if(t_key2 == NULL)
         t_key2 = t_key1;
     if(t_key1 == NULL || !t_key1->has_object || !t_key2->has_object)
