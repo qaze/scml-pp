@@ -32,18 +32,41 @@ namespace SCML
     }
 #endif
 
-static void log(const char* formatted_text, ...)
-{
+static void log(const char* formatted_text, ...) {
     static char buffer[2000];
     if(formatted_text == NULL)
         return;
-
     va_list lst;
     va_start(lst, formatted_text);
     vsprintf(buffer, formatted_text, lst);
     va_end(lst);
     
     printf("%s", buffer);
+}
+
+static void logi(int indent, const char* formatted_text, ...)
+{
+    static char buffer[2000];
+    static char spaces[256];
+    static bool inited = false;
+    if(formatted_text == NULL)
+        return;
+	if (!inited) {
+		inited = true;
+		for (int i = 0; i<255; i++) {
+			spaces[i] = ' ';
+		}
+		spaces[255] = 0;
+	}
+	if (indent > 63) indent = 63;
+	char* indentstr = spaces + 255 - (indent*4);
+
+    va_list lst;
+    va_start(lst, formatted_text);
+    vsprintf(buffer, formatted_text, lst);
+    va_end(lst);
+    
+    printf("%s%s", indentstr, buffer);
 }
 
 
@@ -235,12 +258,16 @@ bool Data::load(TiXmlElement* elem)
     return true;
 }
 
+static int sLogDepth = 0;
+
 void Data::log(int recursive_depth) const
 {
-    SCML::log("scml_version=%s\n", SCML_TO_CSTRING(scml_version));
-    SCML::log("generator=%s\n", SCML_TO_CSTRING(generator));
-    SCML::log("generator_version=%s\n", SCML_TO_CSTRING(generator_version));
-    SCML::log("pixel_art_mode=%s\n", SCML_TO_CSTRING(toString(pixel_art_mode)));
+	sLogDepth = recursive_depth;
+
+    SCML::logi(sLogDepth - recursive_depth, "scml_version=%s\n", SCML_TO_CSTRING(scml_version));
+    SCML::logi(sLogDepth - recursive_depth, "generator=%s\n", SCML_TO_CSTRING(generator));
+    SCML::logi(sLogDepth - recursive_depth, "generator_version=%s\n", SCML_TO_CSTRING(generator_version));
+    SCML::logi(sLogDepth - recursive_depth, "pixel_art_mode=%s\n", SCML_TO_CSTRING(toString(pixel_art_mode)));
     
     if(recursive_depth == 0)
         return;
@@ -250,34 +277,36 @@ void Data::log(int recursive_depth) const
     
     SCML_BEGIN_MAP_FOREACH_CONST(folders, int, Folder*, item)
     {
-        SCML::log("Folder:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Folder:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
     
     SCML_BEGIN_MAP_FOREACH_CONST(atlases, int, Atlas*, item)
     {
-        SCML::log("Atlas:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Atlas:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
     
     SCML_BEGIN_MAP_FOREACH_CONST(entities, int, Entity*, item)
     {
-        SCML::log("Entity:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Entity:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
     
     SCML_BEGIN_MAP_FOREACH_CONST(character_maps, int, Character_Map*, item)
     {
-        SCML::log("Character_Map:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Character_Map:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
     
-    SCML::log("Document_Info:\n");
+    SCML::logi(sLogDepth - recursive_depth, "Document_Info:\n");
     document_info.log(recursive_depth - 1);
+    
+    sLogDepth = 0;
 }
 
 void Data::clear()
@@ -391,14 +420,14 @@ void Data::Meta_Data::log(int recursive_depth) const
     
     SCML_BEGIN_MAP_FOREACH_CONST(variables, SCML_STRING, Variable*, item)
     {
-        SCML::log("Variable:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Variable:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
     
     SCML_BEGIN_MAP_FOREACH_CONST(tags, SCML_STRING, Tag*, item)
     {
-        SCML::log("Tag:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Tag:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
@@ -453,14 +482,14 @@ bool Data::Meta_Data::Variable::load(TiXmlElement* elem)
 
 void Data::Meta_Data::Variable::log(int recursive_depth) const
 {
-    SCML::log("name=%s\n", SCML_TO_CSTRING(name));
-    SCML::log("type=%s\n", SCML_TO_CSTRING(type));
+    SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
+    SCML::logi(sLogDepth - recursive_depth, "type=%s\n", SCML_TO_CSTRING(type));
     if(type == "string")
-        SCML::log("value=%s\n", SCML_TO_CSTRING(value_string));
+        SCML::logi(sLogDepth - recursive_depth, "value=%s\n", SCML_TO_CSTRING(value_string));
     else if(type == "int")
-        SCML::log("value=%d\n", value_int);
+        SCML::logi(sLogDepth - recursive_depth, "value=%d\n", value_int);
     else if(type == "float")
-        SCML::log("value=%f\n", value_float);
+        SCML::logi(sLogDepth - recursive_depth, "value=%f\n", value_float);
 }
 
 void Data::Meta_Data::Variable::clear()
@@ -492,7 +521,7 @@ bool Data::Meta_Data::Tag::load(TiXmlElement* elem)
 
 void Data::Meta_Data::Tag::log(int recursive_depth) const
 {
-    SCML::log("name=%s\n", SCML_TO_CSTRING(name));
+    SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
 }
 
 void Data::Meta_Data::Tag::clear()
@@ -546,15 +575,15 @@ bool Data::Folder::load(TiXmlElement* elem)
 
 void Data::Folder::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("name=%s\n", SCML_TO_CSTRING(name));
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
     
     if(recursive_depth == 0)
         return;
     
     SCML_BEGIN_MAP_FOREACH_CONST(files, int, File*, item)
     {
-        SCML::log("File:\n");
+        SCML::logi(sLogDepth - recursive_depth, "File:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
@@ -609,19 +638,19 @@ bool Data::Folder::File::load(TiXmlElement* elem)
 
 void Data::Folder::File::log(int recursive_depth) const
 {
-    SCML::log("type=%s\n", SCML_TO_CSTRING(type));
-    SCML::log("id=%d\n", id);
-    SCML::log("name=%s\n", SCML_TO_CSTRING(name));
-    SCML::log("pivot_x=%f\n", pivot_x);
-    SCML::log("pivot_y=%f\n", pivot_y);
-    SCML::log("width=%d\n", width);
-    SCML::log("height=%d\n", height);
-    SCML::log("atlas_x=%d\n", atlas_x);
-    SCML::log("atlas_y=%d\n", atlas_y);
-    SCML::log("offset_x=%d\n", offset_x);
-    SCML::log("offset_y=%d\n", offset_y);
-    SCML::log("original_width=%d\n", original_width);
-    SCML::log("original_height=%d\n", original_height);
+    SCML::logi(sLogDepth - recursive_depth, "type=%s\n", SCML_TO_CSTRING(type));
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
+    SCML::logi(sLogDepth - recursive_depth, "pivot_x=%f\n", pivot_x);
+    SCML::logi(sLogDepth - recursive_depth, "pivot_y=%f\n", pivot_y);
+    SCML::logi(sLogDepth - recursive_depth, "width=%d\n", width);
+    SCML::logi(sLogDepth - recursive_depth, "height=%d\n", height);
+    SCML::logi(sLogDepth - recursive_depth, "atlas_x=%d\n", atlas_x);
+    SCML::logi(sLogDepth - recursive_depth, "atlas_y=%d\n", atlas_y);
+    SCML::logi(sLogDepth - recursive_depth, "offset_x=%d\n", offset_x);
+    SCML::logi(sLogDepth - recursive_depth, "offset_y=%d\n", offset_y);
+    SCML::logi(sLogDepth - recursive_depth, "original_width=%d\n", original_width);
+    SCML::logi(sLogDepth - recursive_depth, "original_height=%d\n", original_height);
 }
 
 void Data::Folder::File::clear()
@@ -688,16 +717,16 @@ bool Data::Atlas::load(TiXmlElement* elem)
 
 void Data::Atlas::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("data_path=%s\n", SCML_TO_CSTRING(data_path));
-    SCML::log("image_path=%s\n", SCML_TO_CSTRING(image_path));
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "data_path=%s\n", SCML_TO_CSTRING(data_path));
+    SCML::logi(sLogDepth - recursive_depth, "image_path=%s\n", SCML_TO_CSTRING(image_path));
     
     if(recursive_depth == 0)
         return;
     
     SCML_BEGIN_MAP_FOREACH_CONST(folders, int, Folder*, item)
     {
-        SCML::log("Folder:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Folder:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
@@ -760,15 +789,15 @@ bool Data::Atlas::Folder::load(TiXmlElement* elem)
 
 void Data::Atlas::Folder::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("name=%s\n", SCML_TO_CSTRING(name));
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
     
     if(recursive_depth == 0)
         return;
     
     SCML_BEGIN_MAP_FOREACH_CONST(images, int, Image*, item)
     {
-        SCML::log("Image:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Image:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
@@ -812,8 +841,8 @@ bool Data::Atlas::Folder::Image::load(TiXmlElement* elem)
 
 void Data::Atlas::Folder::Image::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("full_path=%s\n", SCML_TO_CSTRING(full_path));
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "full_path=%s\n", SCML_TO_CSTRING(full_path));
 }
 
 void Data::Atlas::Folder::Image::clear()
@@ -880,21 +909,21 @@ bool Data::Entity::load(TiXmlElement* elem)
 
 void Data::Entity::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("name=%s\n", SCML_TO_CSTRING(name));
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
     
     if(recursive_depth == 0)
         return;
     
     if(meta_data != NULL)
     {
-        SCML::log("Meta_Data:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
     
     SCML_BEGIN_MAP_FOREACH_CONST(animations, int, Animation*, item)
     {
-        SCML::log("Animation:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Animation:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
@@ -980,26 +1009,27 @@ bool Data::Entity::Animation::load(TiXmlElement* elem)
 
 void Data::Entity::Animation::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("name=%s\n", SCML_TO_CSTRING(name));
-    SCML::log("length=%d\n", length);
-    SCML::log("looping=%s\n", SCML_TO_CSTRING(looping));
-    SCML::log("loop_to=%d\n", loop_to);
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
+    SCML::logi(sLogDepth - recursive_depth, "length=%d\n", length);
+    SCML::logi(sLogDepth - recursive_depth, "looping=%s\n", SCML_TO_CSTRING(looping));
+    SCML::logi(sLogDepth - recursive_depth, "loop_to=%d\n", loop_to);
     
     if(recursive_depth == 0)
         return;
     
     if(meta_data != NULL)
     {
-        SCML::log("Meta_Data:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
     
+    SCML::logi(sLogDepth - recursive_depth, "Mainline:\n");
     mainline.log(recursive_depth - 1);
     
     SCML_BEGIN_MAP_FOREACH_CONST(timelines, int, Timeline*, item)
     {
-        SCML::log("Timeline:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Timeline:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
@@ -1081,7 +1111,7 @@ void Data::Entity::Animation::Mainline::log(int recursive_depth) const
         
     SCML_BEGIN_MAP_FOREACH_CONST(keys, int, Key*, item)
     {
-        SCML::log("Key:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Key:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
@@ -1206,15 +1236,15 @@ bool Data::Entity::Animation::Mainline::Key::load(TiXmlElement* elem)
 
 void Data::Entity::Animation::Mainline::Key::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("time=%d\n", time);
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "time=%d\n", time);
     
     if(recursive_depth == 0)
         return;
     
     if(meta_data != NULL)
     {
-        SCML::log("Meta_Data:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
     
@@ -1222,12 +1252,12 @@ void Data::Entity::Animation::Mainline::Key::log(int recursive_depth) const
     {
         if(item.hasBone())
         {
-            SCML::log("Bone:\n");
+            SCML::logi(sLogDepth - recursive_depth, "Bone:\n");
             item.bone->log(recursive_depth - 1);
         }
         if(item.hasBone_Ref())
         {
-            SCML::log("Bone_Ref:\n");
+            SCML::logi(sLogDepth - recursive_depth, "Bone_Ref:\n");
             item.bone_ref->log(recursive_depth - 1);
         }
     }
@@ -1237,12 +1267,12 @@ void Data::Entity::Animation::Mainline::Key::log(int recursive_depth) const
     {
         if(item.hasObject())
         {
-            SCML::log("Object:\n");
+            SCML::logi(sLogDepth - recursive_depth, "Object:\n");
             item.object->log(recursive_depth - 1);
         }
         if(item.hasObject_Ref())
         {
-            SCML::log("Object_Ref:\n");
+            SCML::logi(sLogDepth - recursive_depth, "Object_Ref:\n");
             item.object_ref->log(recursive_depth - 1);
         }
     }
@@ -1324,24 +1354,24 @@ bool Data::Entity::Animation::Mainline::Key::Bone::load(TiXmlElement* elem)
 
 void Data::Entity::Animation::Mainline::Key::Bone::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("parent=%d\n", parent);
-    SCML::log("x=%f\n", x);
-    SCML::log("y=%f\n", y);
-    SCML::log("angle=%f\n", angle);
-    SCML::log("scale_x=%f\n", scale_x);
-    SCML::log("scale_y=%f\n", scale_y);
-    SCML::log("r=%f\n", r);
-    SCML::log("g=%f\n", g);
-    SCML::log("b=%f\n", b);
-    SCML::log("a=%f\n", a);
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "parent=%d\n", parent);
+    SCML::logi(sLogDepth - recursive_depth, "x=%f\n", x);
+    SCML::logi(sLogDepth - recursive_depth, "y=%f\n", y);
+    SCML::logi(sLogDepth - recursive_depth, "angle=%f\n", angle);
+    SCML::logi(sLogDepth - recursive_depth, "scale_x=%f\n", scale_x);
+    SCML::logi(sLogDepth - recursive_depth, "scale_y=%f\n", scale_y);
+    SCML::logi(sLogDepth - recursive_depth, "r=%f\n", r);
+    SCML::logi(sLogDepth - recursive_depth, "g=%f\n", g);
+    SCML::logi(sLogDepth - recursive_depth, "b=%f\n", b);
+    SCML::logi(sLogDepth - recursive_depth, "a=%f\n", a);
     
     if(recursive_depth == 0)
         return;
     
     if(meta_data != NULL)
     {
-        SCML::log("Meta_Data:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
 }
@@ -1393,10 +1423,10 @@ bool Data::Entity::Animation::Mainline::Key::Bone_Ref::load(TiXmlElement* elem)
 
 void Data::Entity::Animation::Mainline::Key::Bone_Ref::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("parent=%d\n", parent);
-    SCML::log("timeline=%d\n", timeline);
-    SCML::log("key=%d\n", key);
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "parent=%d\n", parent);
+    SCML::logi(sLogDepth - recursive_depth, "timeline=%d\n", timeline);
+    SCML::logi(sLogDepth - recursive_depth, "key=%d\n", key);
     
 }
 
@@ -1491,55 +1521,55 @@ bool Data::Entity::Animation::Mainline::Key::Object::load(TiXmlElement* elem)
 
 void Data::Entity::Animation::Mainline::Key::Object::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("parent=%d\n", parent);
-    SCML::log("object_type=%s\n", SCML_TO_CSTRING(object_type));
-    SCML::log("atlas=%d\n", atlas);
-    SCML::log("folder=%d\n", folder);
-    SCML::log("file=%d\n", file);
-    SCML::log("usage=%s\n", SCML_TO_CSTRING(usage));
-    SCML::log("blend_mode=%s\n", SCML_TO_CSTRING(blend_mode));
-    SCML::log("x=%f\n", x);
-    SCML::log("y=%f\n", y);
-    SCML::log("pivot_x=%f\n", pivot_x);
-    SCML::log("pivot_y=%f\n", pivot_y);
-    SCML::log("pixel_art_mode_x=%d\n", pixel_art_mode_x);
-    SCML::log("pixel_art_mode_y=%d\n", pixel_art_mode_y);
-    SCML::log("pixel_art_mode_pivot_x=%d\n", pixel_art_mode_pivot_x);
-    SCML::log("pixel_art_mode_pivot_y=%d\n", pixel_art_mode_pivot_y);
-    SCML::log("angle=%f\n", angle);
-    SCML::log("w=%f\n", w);
-    SCML::log("h=%f\n", h);
-    SCML::log("scale_x=%f\n", scale_x);
-    SCML::log("scale_y=%f\n", scale_y);
-    SCML::log("r=%f\n", r);
-    SCML::log("g=%f\n", g);
-    SCML::log("b=%f\n", b);
-    SCML::log("a=%f\n", a);
-    SCML::log("variable_type=%s\n", SCML_TO_CSTRING(variable_type));
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "parent=%d\n", parent);
+    SCML::logi(sLogDepth - recursive_depth, "object_type=%s\n", SCML_TO_CSTRING(object_type));
+    SCML::logi(sLogDepth - recursive_depth, "atlas=%d\n", atlas);
+    SCML::logi(sLogDepth - recursive_depth, "folder=%d\n", folder);
+    SCML::logi(sLogDepth - recursive_depth, "file=%d\n", file);
+    SCML::logi(sLogDepth - recursive_depth, "usage=%s\n", SCML_TO_CSTRING(usage));
+    SCML::logi(sLogDepth - recursive_depth, "blend_mode=%s\n", SCML_TO_CSTRING(blend_mode));
+    SCML::logi(sLogDepth - recursive_depth, "x=%f\n", x);
+    SCML::logi(sLogDepth - recursive_depth, "y=%f\n", y);
+    SCML::logi(sLogDepth - recursive_depth, "pivot_x=%f\n", pivot_x);
+    SCML::logi(sLogDepth - recursive_depth, "pivot_y=%f\n", pivot_y);
+    SCML::logi(sLogDepth - recursive_depth, "pixel_art_mode_x=%d\n", pixel_art_mode_x);
+    SCML::logi(sLogDepth - recursive_depth, "pixel_art_mode_y=%d\n", pixel_art_mode_y);
+    SCML::logi(sLogDepth - recursive_depth, "pixel_art_mode_pivot_x=%d\n", pixel_art_mode_pivot_x);
+    SCML::logi(sLogDepth - recursive_depth, "pixel_art_mode_pivot_y=%d\n", pixel_art_mode_pivot_y);
+    SCML::logi(sLogDepth - recursive_depth, "angle=%f\n", angle);
+    SCML::logi(sLogDepth - recursive_depth, "w=%f\n", w);
+    SCML::logi(sLogDepth - recursive_depth, "h=%f\n", h);
+    SCML::logi(sLogDepth - recursive_depth, "scale_x=%f\n", scale_x);
+    SCML::logi(sLogDepth - recursive_depth, "scale_y=%f\n", scale_y);
+    SCML::logi(sLogDepth - recursive_depth, "r=%f\n", r);
+    SCML::logi(sLogDepth - recursive_depth, "g=%f\n", g);
+    SCML::logi(sLogDepth - recursive_depth, "b=%f\n", b);
+    SCML::logi(sLogDepth - recursive_depth, "a=%f\n", a);
+    SCML::logi(sLogDepth - recursive_depth, "variable_type=%s\n", SCML_TO_CSTRING(variable_type));
     if(variable_type == "string")
     {
-        SCML::log("value=%s\n", SCML_TO_CSTRING(value_string));
+        SCML::logi(sLogDepth - recursive_depth, "value=%s\n", SCML_TO_CSTRING(value_string));
     }
     else if(variable_type == "int")
     {
-        SCML::log("value=%d\n", value_int);
-        SCML::log("min=%d\n", min_int);
-        SCML::log("max=%d\n", max_int);
+        SCML::logi(sLogDepth - recursive_depth, "value=%d\n", value_int);
+        SCML::logi(sLogDepth - recursive_depth, "min=%d\n", min_int);
+        SCML::logi(sLogDepth - recursive_depth, "max=%d\n", max_int);
     }
     else if(variable_type == "float")
     {
-        SCML::log("value=%f\n", value_float);
-        SCML::log("min=%f\n", min_float);
-        SCML::log("max=%f\n", max_float);
+        SCML::logi(sLogDepth - recursive_depth, "value=%f\n", value_float);
+        SCML::logi(sLogDepth - recursive_depth, "min=%f\n", min_float);
+        SCML::logi(sLogDepth - recursive_depth, "max=%f\n", max_float);
     }
-    SCML::log("animation=%d\n", animation);
-    SCML::log("t=%f\n", t);
-    SCML::log("z_index=%d\n", z_index);
+    SCML::logi(sLogDepth - recursive_depth, "animation=%d\n", animation);
+    SCML::logi(sLogDepth - recursive_depth, "t=%f\n", t);
+    SCML::logi(sLogDepth - recursive_depth, "z_index=%d\n", z_index);
     if(object_type == "sound")
     {
-        SCML::log("volume=%f\n", volume);
-        SCML::log("panning=%f\n", panning);
+        SCML::logi(sLogDepth - recursive_depth, "volume=%f\n", volume);
+        SCML::logi(sLogDepth - recursive_depth, "panning=%f\n", panning);
     }
     // TODO: Remove stuff for object_types that don't need them
     
@@ -1548,7 +1578,7 @@ void Data::Entity::Animation::Mainline::Key::Object::log(int recursive_depth) co
     
     if(meta_data != NULL)
     {
-        SCML::log("Meta_Data:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
 }
@@ -1628,11 +1658,11 @@ bool Data::Entity::Animation::Mainline::Key::Object_Ref::load(TiXmlElement* elem
 
 void Data::Entity::Animation::Mainline::Key::Object_Ref::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("parent=%d\n", parent);
-    SCML::log("timeline=%d\n", timeline);
-    SCML::log("key=%d\n", key);
-    SCML::log("z_index=%d\n", z_index);
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "parent=%d\n", parent);
+    SCML::logi(sLogDepth - recursive_depth, "timeline=%d\n", timeline);
+    SCML::logi(sLogDepth - recursive_depth, "key=%d\n", key);
+    SCML::logi(sLogDepth - recursive_depth, "z_index=%d\n", z_index);
     
 }
 
@@ -1716,24 +1746,24 @@ bool Data::Entity::Animation::Timeline::load(TiXmlElement* elem)
 
 void Data::Entity::Animation::Timeline::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("name=%s\n", SCML_TO_CSTRING(name));
-    SCML::log("object_type=%s\n", SCML_TO_CSTRING(object_type));
-    SCML::log("variable_type=%s\n", SCML_TO_CSTRING(variable_type));
-    SCML::log("usage=%s\n", SCML_TO_CSTRING(usage));
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
+    SCML::logi(sLogDepth - recursive_depth, "object_type=%s\n", SCML_TO_CSTRING(object_type));
+    SCML::logi(sLogDepth - recursive_depth, "variable_type=%s\n", SCML_TO_CSTRING(variable_type));
+    SCML::logi(sLogDepth - recursive_depth, "usage=%s\n", SCML_TO_CSTRING(usage));
     
     if(recursive_depth == 0)
         return;
     
     if(meta_data != NULL)
     {
-        SCML::log("Meta_Data:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
     
     SCML_BEGIN_MAP_FOREACH_CONST(keys, int, Key*, item)
     {
-        SCML::log("Key:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Key:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
@@ -1821,29 +1851,29 @@ bool Data::Entity::Animation::Timeline::Key::load(TiXmlElement* elem)
 
 void Data::Entity::Animation::Timeline::Key::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("time=%d\n", time);
-    SCML::log("curve_type=%s\n", SCML_TO_CSTRING(curve_type));
-    SCML::log("c1=%f\n", c1);
-    SCML::log("c2=%f\n", c2);
-    SCML::log("spin=%d\n", spin);
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "time=%d\n", time);
+    SCML::logi(sLogDepth - recursive_depth, "curve_type=%s\n", SCML_TO_CSTRING(curve_type));
+    SCML::logi(sLogDepth - recursive_depth, "c1=%f\n", c1);
+    SCML::logi(sLogDepth - recursive_depth, "c2=%f\n", c2);
+    SCML::logi(sLogDepth - recursive_depth, "spin=%d\n", spin);
     
     if(recursive_depth == 0)
         return;
     
     if(meta_data != NULL)
     {
-        SCML::log("Meta_Data:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth - 1);
     }
     if(has_object)
     {
-        SCML::log("Object:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Object:\n");
         object.log(recursive_depth - 1);
     }
     else
     {
-        SCML::log("Bone:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Bone:\n");
         bone.log(recursive_depth - 1);
     }
     
@@ -1910,7 +1940,7 @@ void Data::Meta_Data_Tweenable::log(int recursive_depth) const
         
     SCML_BEGIN_MAP_FOREACH_CONST(variables, SCML_STRING, Variable*, item)
     {
-        SCML::log("Variable:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Variable:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
@@ -1963,17 +1993,17 @@ bool Data::Meta_Data_Tweenable::Variable::load(TiXmlElement* elem)
 
 void Data::Meta_Data_Tweenable::Variable::log(int recursive_depth) const
 {
-    SCML::log("type=%s\n", SCML_TO_CSTRING(type));
+    SCML::logi(sLogDepth - recursive_depth, "type=%s\n", SCML_TO_CSTRING(type));
     if(type == "string")
-        SCML::log("value=%s\n", SCML_TO_CSTRING(value_string));
+        SCML::logi(sLogDepth - recursive_depth, "value=%s\n", SCML_TO_CSTRING(value_string));
     else if(type == "int")
-        SCML::log("value=%d\n", value_int);
+        SCML::logi(sLogDepth - recursive_depth, "value=%d\n", value_int);
     else if(type == "float")
-        SCML::log("value=%f\n", value_float);
+        SCML::logi(sLogDepth - recursive_depth, "value=%f\n", value_float);
         
-    SCML::log("curve_type=%s\n", SCML_TO_CSTRING(curve_type));
-    SCML::log("c1=%f\n", c1);
-    SCML::log("c2=%f\n", c2);
+    SCML::logi(sLogDepth - recursive_depth, "curve_type=%s\n", SCML_TO_CSTRING(curve_type));
+    SCML::logi(sLogDepth - recursive_depth, "c1=%f\n", c1);
+    SCML::logi(sLogDepth - recursive_depth, "c2=%f\n", c2);
     
 }
 
@@ -2031,22 +2061,22 @@ bool Data::Entity::Animation::Timeline::Key::Bone::load(TiXmlElement* elem)
 
 void Data::Entity::Animation::Timeline::Key::Bone::log(int recursive_depth) const
 {
-    SCML::log("x=%f\n", x);
-    SCML::log("y=%f\n", y);
-    SCML::log("angle=%f\n", angle);
-    SCML::log("scale_x=%f\n", scale_x);
-    SCML::log("scale_y=%f\n", scale_y);
-    SCML::log("r=%f\n", r);
-    SCML::log("g=%f\n", g);
-    SCML::log("b=%f\n", b);
-    SCML::log("a=%f\n", a);
+    SCML::logi(sLogDepth - recursive_depth, "x=%f\n", x);
+    SCML::logi(sLogDepth - recursive_depth, "y=%f\n", y);
+    SCML::logi(sLogDepth - recursive_depth, "angle=%f\n", angle);
+    SCML::logi(sLogDepth - recursive_depth, "scale_x=%f\n", scale_x);
+    SCML::logi(sLogDepth - recursive_depth, "scale_y=%f\n", scale_y);
+    SCML::logi(sLogDepth - recursive_depth, "r=%f\n", r);
+    SCML::logi(sLogDepth - recursive_depth, "g=%f\n", g);
+    SCML::logi(sLogDepth - recursive_depth, "b=%f\n", b);
+    SCML::logi(sLogDepth - recursive_depth, "a=%f\n", a);
     
     if(recursive_depth == 0)
         return;
     
     if(meta_data != NULL)
     {
-        SCML::log("Meta_Data:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
     
@@ -2146,48 +2176,48 @@ bool Data::Entity::Animation::Timeline::Key::Object::load(TiXmlElement* elem)
 
 void Data::Entity::Animation::Timeline::Key::Object::log(int recursive_depth) const
 {
-    //SCML::log("object_type=%s\n", SCML_TO_CSTRING(object_type));
-    SCML::log("atlas=%d\n", atlas);
-    SCML::log("folder=%d\n", folder);
-    SCML::log("file=%d\n", file);
-    //SCML::log("usage=%s\n", SCML_TO_CSTRING(usage));
-    SCML::log("x=%f\n", x);
-    SCML::log("y=%f\n", y);
-    SCML::log("pivot_x=%f\n", pivot_x);
-    SCML::log("pivot_y=%f\n", pivot_y);
-    SCML::log("angle=%f\n", angle);
-    SCML::log("w=%f\n", w);
-    SCML::log("h=%f\n", h);
-    SCML::log("scale_x=%f\n", scale_x);
-    SCML::log("scale_y=%f\n", scale_y);
-    SCML::log("r=%f\n", r);
-    SCML::log("g=%f\n", g);
-    SCML::log("b=%f\n", b);
-    SCML::log("a=%f\n", a);
-    SCML::log("blend_mode=%s\n", SCML_TO_CSTRING(blend_mode));
-    //SCML::log("variable_type=%s\n", SCML_TO_CSTRING(variable_type));
+    //SCML::logi(sLogDepth - recursive_depth, "object_type=%s\n", SCML_TO_CSTRING(object_type));
+    SCML::logi(sLogDepth - recursive_depth, "atlas=%d\n", atlas);
+    SCML::logi(sLogDepth - recursive_depth, "folder=%d\n", folder);
+    SCML::logi(sLogDepth - recursive_depth, "file=%d\n", file);
+    //SCML::logi(sLogDepth - recursive_depth, "usage=%s\n", SCML_TO_CSTRING(usage));
+    SCML::logi(sLogDepth - recursive_depth, "x=%f\n", x);
+    SCML::logi(sLogDepth - recursive_depth, "y=%f\n", y);
+    SCML::logi(sLogDepth - recursive_depth, "pivot_x=%f\n", pivot_x);
+    SCML::logi(sLogDepth - recursive_depth, "pivot_y=%f\n", pivot_y);
+    SCML::logi(sLogDepth - recursive_depth, "angle=%f\n", angle);
+    SCML::logi(sLogDepth - recursive_depth, "w=%f\n", w);
+    SCML::logi(sLogDepth - recursive_depth, "h=%f\n", h);
+    SCML::logi(sLogDepth - recursive_depth, "scale_x=%f\n", scale_x);
+    SCML::logi(sLogDepth - recursive_depth, "scale_y=%f\n", scale_y);
+    SCML::logi(sLogDepth - recursive_depth, "r=%f\n", r);
+    SCML::logi(sLogDepth - recursive_depth, "g=%f\n", g);
+    SCML::logi(sLogDepth - recursive_depth, "b=%f\n", b);
+    SCML::logi(sLogDepth - recursive_depth, "a=%f\n", a);
+    SCML::logi(sLogDepth - recursive_depth, "blend_mode=%s\n", SCML_TO_CSTRING(blend_mode));
+    //SCML::logi(sLogDepth - recursive_depth, "variable_type=%s\n", SCML_TO_CSTRING(variable_type));
     //if(variable_type == "string")
     {
-        SCML::log("value=%s\n", SCML_TO_CSTRING(value_string));
+        SCML::logi(sLogDepth - recursive_depth, "value=%s\n", SCML_TO_CSTRING(value_string));
     }
     /*else if(variable_type == "int")
     {
-        SCML::log("value=%d\n", value_int);
-        SCML::log("min=%d\n", min_int);
-        SCML::log("max=%d\n", max_int);
+        SCML::logi(sLogDepth - recursive_depth, "value=%d\n", value_int);
+        SCML::logi(sLogDepth - recursive_depth, "min=%d\n", min_int);
+        SCML::logi(sLogDepth - recursive_depth, "max=%d\n", max_int);
     }
     else if(variable_type == "float")
     {
-        SCML::log("value=%f\n", value_float);
-        SCML::log("min=%f\n", min_float);
-        SCML::log("max=%f\n", max_float);
+        SCML::logi(sLogDepth - recursive_depth, "value=%f\n", value_float);
+        SCML::logi(sLogDepth - recursive_depth, "min=%f\n", min_float);
+        SCML::logi(sLogDepth - recursive_depth, "max=%f\n", max_float);
     }*/
-    SCML::log("animation=%d\n", animation);
-    SCML::log("t=%f\n", t);
+    SCML::logi(sLogDepth - recursive_depth, "animation=%d\n", animation);
+    SCML::logi(sLogDepth - recursive_depth, "t=%f\n", t);
     //if(object_type == "sound")
     {
-        SCML::log("volume=%f\n", volume);
-        SCML::log("panning=%f\n", panning);
+        SCML::logi(sLogDepth - recursive_depth, "volume=%f\n", volume);
+        SCML::logi(sLogDepth - recursive_depth, "panning=%f\n", panning);
     }
     // TODO: Remove stuff for object_types that don't need them
     
@@ -2196,7 +2226,7 @@ void Data::Entity::Animation::Timeline::Key::Object::log(int recursive_depth) co
         
     if(meta_data != NULL)
     {
-        SCML::log("Meta_Data:\n");
+        SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
 }
@@ -2270,13 +2300,13 @@ bool Data::Character_Map::load(TiXmlElement* elem)
 
 void Data::Character_Map::log(int recursive_depth) const
 {
-    SCML::log("id=%d\n", id);
-    SCML::log("name=%s\n", SCML_TO_CSTRING(name));
+    SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
+    SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
     
     if(recursive_depth == 0)
         return;
     
-    SCML::log("Map:\n");
+    SCML::logi(sLogDepth - recursive_depth, "Map:\n");
     map.log(recursive_depth - 1);
     
 }
@@ -2319,12 +2349,12 @@ bool Data::Character_Map::Map::load(TiXmlElement* elem)
 
 void Data::Character_Map::Map::log(int recursive_depth) const
 {
-    SCML::log("atlas=%d\n", atlas);
-    SCML::log("folder=%d\n", folder);
-    SCML::log("file=%d\n", file);
-    SCML::log("target_atlas=%d\n", target_atlas);
-    SCML::log("target_folder=%d\n", target_folder);
-    SCML::log("target_file=%d\n", target_file);
+    SCML::logi(sLogDepth - recursive_depth, "atlas=%d\n", atlas);
+    SCML::logi(sLogDepth - recursive_depth, "folder=%d\n", folder);
+    SCML::logi(sLogDepth - recursive_depth, "file=%d\n", file);
+    SCML::logi(sLogDepth - recursive_depth, "target_atlas=%d\n", target_atlas);
+    SCML::logi(sLogDepth - recursive_depth, "target_folder=%d\n", target_folder);
+    SCML::logi(sLogDepth - recursive_depth, "target_file=%d\n", target_file);
 }
 
 void Data::Character_Map::Map::clear()
@@ -2370,12 +2400,12 @@ bool Data::Document_Info::load(TiXmlElement* elem)
 
 void Data::Document_Info::log(int recursive_depth) const
 {
-    SCML::log("author=%s\n", SCML_TO_CSTRING(author));
-    SCML::log("copyright=%s\n", SCML_TO_CSTRING(copyright));
-    SCML::log("license=%s\n", SCML_TO_CSTRING(license));
-    SCML::log("version=%s\n", SCML_TO_CSTRING(version));
-    SCML::log("last_modified=%s\n", SCML_TO_CSTRING(last_modified));
-    SCML::log("notes=%s\n", SCML_TO_CSTRING(notes));
+    SCML::logi(sLogDepth - recursive_depth, "author=%s\n", SCML_TO_CSTRING(author));
+    SCML::logi(sLogDepth - recursive_depth, "copyright=%s\n", SCML_TO_CSTRING(copyright));
+    SCML::logi(sLogDepth - recursive_depth, "license=%s\n", SCML_TO_CSTRING(license));
+    SCML::logi(sLogDepth - recursive_depth, "version=%s\n", SCML_TO_CSTRING(version));
+    SCML::logi(sLogDepth - recursive_depth, "last_modified=%s\n", SCML_TO_CSTRING(last_modified));
+    SCML::logi(sLogDepth - recursive_depth, "notes=%s\n", SCML_TO_CSTRING(notes));
 }
 
 void Data::Document_Info::clear()
