@@ -548,6 +548,15 @@ public:
                         int timeline;
                         int key;
                         int z_index;
+                        
+                        float abs_x;
+                        float abs_y;
+                        float abs_pivot_x;
+                        float abs_pivot_y;
+                        float abs_angle;
+                        float abs_scale_x;
+                        float abs_scale_y;
+                        float abs_a;
 
                         Object_Ref();
                         Object_Ref(TiXmlElement* elem);
