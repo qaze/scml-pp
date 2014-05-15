@@ -211,7 +211,7 @@ void main_loop(vector<string>& data_files)
             }
         }
         
-        GPU_Flip();
+        GPU_Flip(GPU_GetContextTarget());
         SDL_Delay(10);
         
         Uint32 framefinish = SDL_GetTicks();
@@ -235,7 +235,7 @@ bool init(unsigned int w, unsigned int h)
 {
     SDL_putenv(const_cast<char*>("SDL_VIDEO_CENTERED=center"));
     
-    screen = GPU_Init(NULL, 800, 600, SDL_SWSURFACE | SDL_DOUBLEBUF);
+    screen = GPU_Init(800, 600, SDL_SWSURFACE | SDL_DOUBLEBUF);
 
     if(screen == NULL)
     {

@@ -7,6 +7,7 @@
 #include <climits>
 #include <cmath>
 #include <algorithm>
+#include <cstring>
 
 #if !defined(_MSC_VER) || defined(MARMALADE)
     #include "libgen.h"
@@ -1653,6 +1654,15 @@ bool Data::Entity::Animation::Mainline::Key::Object_Ref::load(TiXmlElement* elem
     key = xmlGetIntAttr(elem, "key", 0);
     z_index = xmlGetIntAttr(elem, "z_index", 0);
     
+    abs_x = xmlGetFloatAttr(elem, "abs_x", 0.0f);
+    abs_y = xmlGetFloatAttr(elem, "abs_y", 0.0f);
+    abs_pivot_x = xmlGetFloatAttr(elem, "abs_pivot_x", 0.0f);
+    abs_pivot_y = xmlGetFloatAttr(elem, "abs_pivot_y", 1.0f);
+    abs_angle = xmlGetFloatAttr(elem, "abs_angle", 0.0f);
+    abs_scale_x = xmlGetFloatAttr(elem, "abs_scale_x", 1.0f);
+    abs_scale_y = xmlGetFloatAttr(elem, "abs_scale_y", 1.0f);
+    abs_a = xmlGetFloatAttr(elem, "abs_a", 1.0f);
+    
     return true;
 }
 
@@ -2856,7 +2866,7 @@ void Entity::Bone_Transform_State::rebuild(int entity, int animation, int key, i
     }
     SCML_END_MAP_FOREACH_CONST;
     
-    if(max_index <= 0)
+    if(max_index < 0)
         return;
     
     SCML_VECTOR_RESIZE(transforms, max_index+1);
