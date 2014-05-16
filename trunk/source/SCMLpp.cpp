@@ -624,7 +624,7 @@ bool Data::Folder::File::load(TiXmlElement* elem)
     this->id = xmlGetIntAttr(elem, "id", 0);
     name = xmlGetStringAttr(elem, "name", "");
     pivot_x = xmlGetFloatAttr(elem, "pivot_x", 0.0f);
-    pivot_y = xmlGetFloatAttr(elem, "pivot_y", 0.0f);
+    pivot_y = xmlGetFloatAttr(elem, "pivot_y", 1.0f);
     width = xmlGetIntAttr(elem, "width", 0);
     height = xmlGetIntAttr(elem, "height", 0);
     atlas_x = xmlGetIntAttr(elem, "atlas_x", 0);
@@ -660,7 +660,7 @@ void Data::Folder::File::clear()
     this->id = 0;
     name.clear();
     pivot_x = 0.0f;
-    pivot_y = 0.0f;
+    pivot_y = 1.0f;
     width = 0;
     height = 0;
     atlas_x = 0;
@@ -1597,7 +1597,7 @@ void Data::Entity::Animation::Mainline::Key::Object::clear()
     x = 0.0f;
     y = 0.0f;
     pivot_x = 0.0f;
-    pivot_y = 0.0f;
+    pivot_y = 1.0f;
     pixel_art_mode_x = 0;
     pixel_art_mode_y = 0;
     pixel_art_mode_pivot_x = 0;
@@ -2251,7 +2251,7 @@ void Data::Entity::Animation::Timeline::Key::Object::clear()
     x = 0.0f;
     y = 0.0f;
     pivot_x = 0.0f;
-    pivot_y = 0.0f;
+    pivot_y = 1.0f;
     angle = 0.0f;
     w = 0.0f;
     h = 0.0f;
