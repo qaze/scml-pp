@@ -26,10 +26,11 @@
     {
         return std::make_pair(a, b);
     }
-    
+
     #define SCML_MAP_SIZE(m) (m).size()
     #define SCML_MAP_INSERT(m,a,b) m.insert(std::make_pair((a),(b))).second
-    
+    #define SCML_MAP_INSERT_ONLY(m,a,b) m.insert(std::make_pair((a),(b)))
+
     // Be careful with these...  Macros don't nest well.  Use a typedef as necessary for the map parameters.
     #define SCML_BEGIN_MAP_FOREACH(m,a,b,name) for(SCML_MAP(a , b)::iterator _iter_e = m.begin(); _iter_e != m.end(); _iter_e++) { b& name = _iter_e->second;
     #define SCML_END_MAP_FOREACH }
