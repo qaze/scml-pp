@@ -2529,7 +2529,7 @@ void Entity::load(SCML::Data* data)
     
     SCML_BEGIN_MAP_FOREACH_CONST(entity_ptr->animations, int, SCML::Data::Entity::Animation*, item)
     {
-        SCML_MAP_INSERT(animations, item->id, new Animation(item));
+        SCML_MAP_INSERT_ONLY(animations, item->id, new Animation(item));
     }
     SCML_END_MAP_FOREACH_CONST;
 }
@@ -2951,7 +2951,7 @@ Entity::Animation::Animation(SCML::Data::Entity::Animation* animation)
 {
     SCML_BEGIN_MAP_FOREACH_CONST(animation->timelines, int, SCML::Data::Entity::Animation::Timeline*, item)
     {
-        SCML_MAP_INSERT(timelines, item->id, new Timeline(item));
+        SCML_MAP_INSERT_ONLY(timelines, item->id, new Timeline(item));
     }
     SCML_END_MAP_FOREACH_CONST;
 }
@@ -2975,7 +2975,7 @@ Entity::Animation::Mainline::Mainline(SCML::Data::Entity::Animation::Mainline* m
 {
     SCML_BEGIN_MAP_FOREACH_CONST(mainline->keys, int, SCML::Data::Entity::Animation::Mainline::Key*, item)
     {
-        SCML_MAP_INSERT(keys, item->id, new Key(item));
+        SCML_MAP_INSERT_ONLY(keys, item->id, new Key(item));
     }
     SCML_END_MAP_FOREACH_CONST;
 }
@@ -3004,12 +3004,12 @@ Entity::Animation::Mainline::Key::Key(SCML::Data::Entity::Animation::Mainline::K
         if(item.hasBone())
         {
             Bone* b = new Bone(item.bone);
-            SCML_MAP_INSERT(bones, b->id, Bone_Container(b));
+            SCML_MAP_INSERT_ONLY(bones, b->id, Bone_Container(b));
         }
         if(item.hasBone_Ref())
         {
             Bone_Ref* b = new Bone_Ref(item.bone_ref);
-            SCML_MAP_INSERT(bones, b->id, Bone_Container(b));
+            SCML_MAP_INSERT_ONLY(bones, b->id, Bone_Container(b));
         }
     }
     SCML_END_MAP_FOREACH_CONST;
@@ -3020,12 +3020,12 @@ Entity::Animation::Mainline::Key::Key(SCML::Data::Entity::Animation::Mainline::K
         if(item.hasObject())
         {
             Object* b = new Object(item.object);
-            SCML_MAP_INSERT(objects, b->id, Object_Container(b));
+            SCML_MAP_INSERT_ONLY(objects, b->id, Object_Container(b));
         }
         if(item.hasObject_Ref())
         {
             Object_Ref* b = new Object_Ref(item.object_ref);
-            SCML_MAP_INSERT(objects, b->id, Object_Container(b));
+            SCML_MAP_INSERT_ONLY(objects, b->id, Object_Container(b));
         }
     }
     SCML_END_MAP_FOREACH_CONST;
@@ -3101,7 +3101,7 @@ Entity::Animation::Timeline::Timeline(SCML::Data::Entity::Animation::Timeline* t
 {
     SCML_BEGIN_MAP_FOREACH_CONST(timeline->keys, int, SCML::Data::Entity::Animation::Timeline::Key*, item)
     {
-        SCML_MAP_INSERT(keys, item->id, new Key(item));
+        SCML_MAP_INSERT_ONLY(keys, item->id, new Key(item));
     }
     SCML_END_MAP_FOREACH_CONST;
 }
