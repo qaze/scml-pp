@@ -13,14 +13,14 @@
     #define SCML_MAP(a,b) std::map< a, b >
     #define SCML_VECTOR(a) std::vector< a >
     #define SCML_PAIR(a,b) std::pair< a, b >
-    
+
     #define SCML_VECTOR_SIZE(v) (v).size()
     #define SCML_VECTOR_RESIZE(v,size) (v).resize(size)
     #define SCML_VECTOR_CLEAR(v) (v).clear()
-    
+
     #define SCML_PAIR_FIRST(p) (p).first
     #define SCML_PAIR_SECOND(p) (p).second
-    
+
     template<typename A, typename B>
     inline SCML_PAIR(A, B) SCML_MAKE_PAIR(A const& a, B const& b)
     {
@@ -36,12 +36,12 @@
     #define SCML_END_MAP_FOREACH }
     #define SCML_BEGIN_MAP_FOREACH_CONST(m,a,b,name) for(SCML_MAP(a , b)::const_iterator _iter_e = m.begin(); _iter_e != m.end(); _iter_e++) { b const& name = _iter_e->second;
     #define SCML_END_MAP_FOREACH_CONST }
-    
+
     #define SCML_TO_CSTRING(s) (s).c_str()
     #define SCML_STRING_SIZE(s) (s).size()
     #define SCML_SET_STRING(s,value) s = value
     #define SCML_STRING_APPEND(s,value) s += value
-    
+
     template<typename A, typename B>
     inline B SCML_MAP_FIND(SCML_MAP(A, B) const& m, A const& key)
     {
@@ -549,7 +549,7 @@ public:
                         int timeline;
                         int key;
                         int z_index;
-                        
+
                         float abs_x;
                         float abs_y;
                         float abs_pivot_x;
@@ -815,17 +815,17 @@ public:
 class Transform
 {
     public:
-    
+
     float x, y;
     float angle;
     float scale_x, scale_y;
-    
+
     Transform();
     Transform(float x, float y, float angle, float scale_x, float scale_y);
-    
+
     bool operator==(const Transform& t) const;
     bool operator!=(const Transform& t) const;
-    
+
     void lerp(const Transform& transform, float t, int spin);
     void apply_parent_transform(const Transform& parent);
 };
@@ -848,7 +848,7 @@ public:
 
     /*! Time (in milliseconds) tracking the position of the animation from its beginning. */
     int time;
-    
+
     class Bone_Transform_State
     {
         public:
@@ -856,16 +856,16 @@ public:
         int animation;
         int key;
         int time;
-        
+
         Transform base_transform;
         SCML_VECTOR(Transform) transforms;
-        
+
         Bone_Transform_State();
-        
+
         bool should_rebuild(int entity, int animation, int key, int time, const Transform& base_transform);
         void rebuild(int entity, int animation, int key, int time, Entity* entity_ptr, const Transform& base_transform);
     };
-    
+
     Bone_Transform_State bone_transform_state;
 
     SCML_STRING name;
@@ -1294,15 +1294,25 @@ public:
     Animation::Timeline::Key* getTimelineKey(int animation, int timeline, int key);
     Animation::Timeline::Key::Object* getTimelineObject(int animation, int timeline, int key);
     Animation::Timeline::Key::Bone* getTimelineBone(int animation, int timeline, int key);
-    
+
     bool getSimpleObjectTransform(Transform& result, Animation::Mainline::Key::Object* obj1);
     bool getTweenedObjectTransform(Transform& result, Animation::Mainline::Key::Object_Ref* ref);
-    
+
     int getNumBones() const;
     int getNumObjects() const;
-    
+
     bool getBoneTransform(Transform& result, int boneID);
     bool getObjectTransform(Transform& result, int objectID);
+
+protected:
+
+    typedef SCML_PAIR(int, int) FolderFile_t;
+    typedef SCML_PAIR(float, float) Pivot_t;
+    Pivot_t getImagePivots(int folderID, int fileID) const;
+
+private:
+
+    SCML_MAP(FolderFile_t, Pivot_t) m_pivots;
 };
 
 

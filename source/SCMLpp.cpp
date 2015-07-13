@@ -41,7 +41,7 @@ static void log(const char* formatted_text, ...) {
     va_start(lst, formatted_text);
     vsprintf(buffer, formatted_text, lst);
     va_end(lst);
-    
+
     printf("%s", buffer);
 }
 
@@ -66,7 +66,7 @@ static void logi(int indent, const char* formatted_text, ...)
     va_start(lst, formatted_text);
     vsprintf(buffer, formatted_text, lst);
     va_end(lst);
-    
+
     printf("%s%s", indentstr, buffer);
 }
 
@@ -109,9 +109,9 @@ Data& Data::clone(const Data& copy, bool skip_base)
         generator_version = copy.generator_version;
         pixel_art_mode = copy.pixel_art_mode;
     }
-    
+
     // TODO: Clone the subobjects
-    
+
     return *this;
 }
 
@@ -123,7 +123,7 @@ Data::~Data()
 bool Data::load(const SCML_STRING& file)
 {
     name = file;
-    
+
     TiXmlDocument doc;
 
     if(!doc.LoadFile(SCML_TO_CSTRING(file)))
@@ -139,16 +139,16 @@ bool Data::load(const SCML_STRING& file)
         SCML::log("SCML::Data failed to load: No spriter_data XML element in %s.\n", SCML_TO_CSTRING(file));
         return false;
     }
-    
+
     load(root);
-    
+
     doc.Clear();
     return true;
 }
 
 bool Data::fromTextData(const char* data) {
     TiXmlDocument doc;
-	
+
 	doc.Parse(data);
     TiXmlElement* root = doc.FirstChildElement("spriter_data");
     if(root == NULL)
@@ -157,7 +157,7 @@ bool Data::fromTextData(const char* data) {
         return false;
     }
     load(root);
-    
+
     doc.Clear();
     return true;
 }
@@ -166,12 +166,12 @@ bool Data::load(TiXmlElement* elem)
 {
     if(elem == NULL)
         return false;
-    
+
     scml_version = xmlGetStringAttr(elem, "scml_version", "");
     generator = xmlGetStringAttr(elem, "generator", "(Spriter)");
     generator_version = xmlGetStringAttr(elem, "generator_version", "(1.0)");
     pixel_art_mode = xmlGetBoolAttr(elem, "pixel_art_mode", false);
-    
+
     TiXmlElement* meta_data_child = elem->FirstChildElement("meta_data");
     if(meta_data_child != NULL)
     {
@@ -179,7 +179,7 @@ bool Data::load(TiXmlElement* elem)
             meta_data = new Meta_Data;
         meta_data->load(meta_data_child);
     }
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("folder"); child != NULL; child = child->NextSiblingElement("folder"))
     {
         Folder* folder = new Folder;
@@ -197,7 +197,7 @@ bool Data::load(TiXmlElement* elem)
             delete folder;
         }
     }
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("atlas"); child != NULL; child = child->NextSiblingElement("atlas"))
     {
         Atlas* atlas = new Atlas;
@@ -215,7 +215,7 @@ bool Data::load(TiXmlElement* elem)
             delete atlas;
         }
     }
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("entity"); child != NULL; child = child->NextSiblingElement("entity"))
     {
         Entity* entity = new Entity;
@@ -233,7 +233,7 @@ bool Data::load(TiXmlElement* elem)
             delete entity;
         }
     }
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("character_map"); child != NULL; child = child->NextSiblingElement("character_map"))
     {
         Character_Map* character_map = new Character_Map;
@@ -251,11 +251,11 @@ bool Data::load(TiXmlElement* elem)
             delete character_map;
         }
     }
-    
+
     TiXmlElement* document_info_elem = elem->FirstChildElement("document_info");
     if(document_info_elem != NULL)
         document_info.load(document_info_elem);
-    
+
     return true;
 }
 
@@ -269,44 +269,44 @@ void Data::log(int recursive_depth) const
     SCML::logi(sLogDepth - recursive_depth, "generator=%s\n", SCML_TO_CSTRING(generator));
     SCML::logi(sLogDepth - recursive_depth, "generator_version=%s\n", SCML_TO_CSTRING(generator_version));
     SCML::logi(sLogDepth - recursive_depth, "pixel_art_mode=%s\n", SCML_TO_CSTRING(toString(pixel_art_mode)));
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     if(meta_data != NULL)
         meta_data->log(recursive_depth - 1);
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(folders, int, Folder*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Folder:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(atlases, int, Atlas*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Atlas:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(entities, int, Entity*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Entity:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(character_maps, int, Character_Map*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Character_Map:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
     SCML::logi(sLogDepth - recursive_depth, "Document_Info:\n");
     document_info.log(recursive_depth - 1);
-    
+
     sLogDepth = 0;
 }
 
@@ -316,38 +316,38 @@ void Data::clear()
     generator = "(Spriter)";
     generator_version = "(1.0)";
     pixel_art_mode = false;
-    
+
     delete meta_data;
     meta_data = NULL;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(folders, int, Folder*, item)
     {
         delete item;
     }
     SCML_END_MAP_FOREACH;
     folders.clear();
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(atlases, int, Atlas*, item)
     {
         delete item;
     }
     SCML_END_MAP_FOREACH;
     atlases.clear();
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(entities, int, Entity*, item)
     {
         delete item;
     }
     SCML_END_MAP_FOREACH;
     entities.clear();
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(character_maps, int, Character_Map*, item)
     {
         delete item;
     }
     SCML_END_MAP_FOREACH;
     character_maps.clear();
-    
+
     document_info.clear();
 }
 
@@ -357,7 +357,7 @@ int Data::getNumAnimations(int entity) const
     Entity* e = SCML_MAP_FIND(entities, entity);
     if(e == NULL)
         return -1;
-    
+
     return SCML_MAP_SIZE(e->animations);
 }
 
@@ -392,7 +392,7 @@ bool Data::Meta_Data::load(TiXmlElement* elem)
             delete variable;
         }
     }
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("tag"); child != NULL; child = child->NextSiblingElement("tag"))
     {
         Tag* tag = new Tag;
@@ -410,7 +410,7 @@ bool Data::Meta_Data::load(TiXmlElement* elem)
             delete tag;
         }
     }
-    
+
     return true;
 }
 
@@ -418,21 +418,21 @@ void Data::Meta_Data::log(int recursive_depth) const
 {
     if(recursive_depth == 0)
         return;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(variables, SCML_STRING, Variable*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Variable:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(tags, SCML_STRING, Tag*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Tag:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
 }
 
 void Data::Meta_Data::clear()
@@ -443,7 +443,7 @@ void Data::Meta_Data::clear()
     }
     SCML_END_MAP_FOREACH_CONST;
     variables.clear();
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(tags, SCML_STRING, Tag*, item)
     {
         delete item;
@@ -469,7 +469,7 @@ bool Data::Meta_Data::Variable::load(TiXmlElement* elem)
 {
     name = xmlGetStringAttr(elem, "name", "");
     type = xmlGetStringAttr(elem, "type", "string");
-    
+
     if(type == "string")
         value_string = xmlGetStringAttr(elem, "value", "");
     else if(type == "int")
@@ -516,7 +516,7 @@ Data::Meta_Data::Tag::Tag(TiXmlElement* elem)
 bool Data::Meta_Data::Tag::load(TiXmlElement* elem)
 {
     name = xmlGetStringAttr(elem, "name", "");
-    
+
     return true;
 }
 
@@ -552,7 +552,7 @@ bool Data::Folder::load(TiXmlElement* elem)
 {
     this->id = xmlGetIntAttr(elem, "id", 0);
     name = xmlGetStringAttr(elem, "name", "");
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("file"); child != NULL; child = child->NextSiblingElement("file"))
     {
         File* file = new File;
@@ -570,7 +570,7 @@ bool Data::Folder::load(TiXmlElement* elem)
             delete file;
         }
     }
-    
+
     return true;
 }
 
@@ -578,24 +578,24 @@ void Data::Folder::log(int recursive_depth) const
 {
     SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
     SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(files, int, File*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "File:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
 }
 
 void Data::Folder::clear()
 {
     this->id = 0;
     name.clear();
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(files, int, File*, item)
     {
         delete item;
@@ -633,7 +633,7 @@ bool Data::Folder::File::load(TiXmlElement* elem)
     offset_y = xmlGetIntAttr(elem, "offset_y", 0);
     original_width = xmlGetIntAttr(elem, "original_width", 0);
     original_height = xmlGetIntAttr(elem, "original_height", 0);
-    
+
     return true;
 }
 
@@ -694,7 +694,7 @@ bool Data::Atlas::load(TiXmlElement* elem)
     this->id = xmlGetIntAttr(elem, "id", 0);
     data_path = xmlGetStringAttr(elem, "data_path", "");
     image_path = xmlGetStringAttr(elem, "image_path", "");
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("folder"); child != NULL; child = child->NextSiblingElement("folder"))
     {
         Folder* folder = new Folder;
@@ -712,7 +712,7 @@ bool Data::Atlas::load(TiXmlElement* elem)
             delete folder;
         }
     }
-    
+
     return true;
 }
 
@@ -721,17 +721,17 @@ void Data::Atlas::log(int recursive_depth) const
     SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
     SCML::logi(sLogDepth - recursive_depth, "data_path=%s\n", SCML_TO_CSTRING(data_path));
     SCML::logi(sLogDepth - recursive_depth, "image_path=%s\n", SCML_TO_CSTRING(image_path));
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(folders, int, Folder*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Folder:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
 }
 
 void Data::Atlas::clear()
@@ -739,7 +739,7 @@ void Data::Atlas::clear()
     this->id = 0;
     data_path.clear();
     image_path.clear();
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(folders, int, Folder*, item)
     {
         delete item;
@@ -766,7 +766,7 @@ bool Data::Atlas::Folder::load(TiXmlElement* elem)
 {
     this->id = xmlGetIntAttr(elem, "id", 0);
     name = xmlGetStringAttr(elem, "name", "");
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("image"); child != NULL; child = child->NextSiblingElement("image"))
     {
         Image* image = new Image;
@@ -784,7 +784,7 @@ bool Data::Atlas::Folder::load(TiXmlElement* elem)
             delete image;
         }
     }
-    
+
     return true;
 }
 
@@ -792,24 +792,24 @@ void Data::Atlas::Folder::log(int recursive_depth) const
 {
     SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
     SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(images, int, Image*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Image:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
 }
 
 void Data::Atlas::Folder::clear()
 {
     this->id = 0;
     name.clear();
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(images, int, Image*, item)
     {
         delete item;
@@ -836,7 +836,7 @@ bool Data::Atlas::Folder::Image::load(TiXmlElement* elem)
 {
     this->id = xmlGetIntAttr(elem, "id", 0);
     full_path = xmlGetStringAttr(elem, "full_path", "");
-    
+
     return true;
 }
 
@@ -878,7 +878,7 @@ bool Data::Entity::load(TiXmlElement* elem)
 {
     this->id = xmlGetIntAttr(elem, "id", 0);
     name = xmlGetStringAttr(elem, "name", "");
-    
+
     TiXmlElement* meta_data_child = elem->FirstChildElement("meta_data");
     if(meta_data_child != NULL)
     {
@@ -886,7 +886,7 @@ bool Data::Entity::load(TiXmlElement* elem)
             meta_data = new Meta_Data;
         meta_data->load(meta_data_child);
     }
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("animation"); child != NULL; child = child->NextSiblingElement("animation"))
     {
         Animation* animation = new Animation;
@@ -904,7 +904,7 @@ bool Data::Entity::load(TiXmlElement* elem)
             delete animation;
         }
     }
-    
+
     return true;
 }
 
@@ -912,23 +912,23 @@ void Data::Entity::log(int recursive_depth) const
 {
     SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
     SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     if(meta_data != NULL)
     {
         SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(animations, int, Animation*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Animation:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
 }
 
 void Data::Entity::clear()
@@ -937,7 +937,7 @@ void Data::Entity::clear()
     name.clear();
     delete meta_data;
     meta_data = NULL;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(animations, int, Animation*, item)
     {
         delete item;
@@ -971,7 +971,7 @@ bool Data::Entity::Animation::load(TiXmlElement* elem)
     length = xmlGetIntAttr(elem, "length", 0);
     looping = xmlGetStringAttr(elem, "looping", "true");
     loop_to = xmlGetIntAttr(elem, "loop_to", 0);
-    
+
     TiXmlElement* meta_data_child = elem->FirstChildElement("meta_data");
     if(meta_data_child != NULL)
     {
@@ -979,14 +979,14 @@ bool Data::Entity::Animation::load(TiXmlElement* elem)
             meta_data = new Meta_Data;
         meta_data->load(meta_data_child);
     }
-    
+
     TiXmlElement* mainline_elem = elem->FirstChildElement("mainline");
     if(mainline_elem == NULL || !mainline.load(mainline_elem))
     {
         SCML::log("SCML::Data::Entity::Animation failed to load the mainline.\n");
         mainline.clear();
     }
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("timeline"); child != NULL; child = child->NextSiblingElement("timeline"))
     {
         Timeline* timeline = new Timeline;
@@ -1004,7 +1004,7 @@ bool Data::Entity::Animation::load(TiXmlElement* elem)
             delete timeline;
         }
     }
-    
+
     return true;
 }
 
@@ -1015,26 +1015,26 @@ void Data::Entity::Animation::log(int recursive_depth) const
     SCML::logi(sLogDepth - recursive_depth, "length=%d\n", length);
     SCML::logi(sLogDepth - recursive_depth, "looping=%s\n", SCML_TO_CSTRING(looping));
     SCML::logi(sLogDepth - recursive_depth, "loop_to=%d\n", loop_to);
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     if(meta_data != NULL)
     {
         SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
-    
+
     SCML::logi(sLogDepth - recursive_depth, "Mainline:\n");
     mainline.log(recursive_depth - 1);
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(timelines, int, Timeline*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Timeline:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
 }
 
 Data::Entity::Animation::~Animation(){
@@ -1048,12 +1048,12 @@ void Data::Entity::Animation::clear()
     length = 0;
     looping = "true";
     loop_to = 0;
-    
+
     delete meta_data;
     meta_data = NULL;
-    
+
     mainline.clear();
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(timelines, int, Timeline*, item)
     {
         delete item;
@@ -1101,7 +1101,7 @@ bool Data::Entity::Animation::Mainline::load(TiXmlElement* elem)
             delete key;
         }
     }
-    
+
     return true;
 }
 
@@ -1109,14 +1109,14 @@ void Data::Entity::Animation::Mainline::log(int recursive_depth) const
 {
     if(recursive_depth == 0)
         return;
-        
+
     SCML_BEGIN_MAP_FOREACH_CONST(keys, int, Key*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Key:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
 }
 
 void Data::Entity::Animation::Mainline::clear()
@@ -1150,7 +1150,7 @@ bool Data::Entity::Animation::Mainline::Key::load(TiXmlElement* elem)
 {
     this->id = xmlGetIntAttr(elem, "id", 0);
     time = xmlGetIntAttr(elem, "time", 0);
-    
+
     TiXmlElement* meta_data_child = elem->FirstChildElement("meta_data");
     if(meta_data_child != NULL)
     {
@@ -1158,7 +1158,7 @@ bool Data::Entity::Animation::Mainline::Key::load(TiXmlElement* elem)
             meta_data = new Meta_Data;
         meta_data->load(meta_data_child);
     }
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("bone"); child != NULL; child = child->NextSiblingElement("bone"))
     {
         Bone* bone = new Bone;
@@ -1176,7 +1176,7 @@ bool Data::Entity::Animation::Mainline::Key::load(TiXmlElement* elem)
             delete bone;
         }
     }
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("bone_ref"); child != NULL; child = child->NextSiblingElement("bone_ref"))
     {
         Bone_Ref* bone_ref = new Bone_Ref;
@@ -1194,8 +1194,8 @@ bool Data::Entity::Animation::Mainline::Key::load(TiXmlElement* elem)
             delete bone_ref;
         }
     }
-    
-    
+
+
     for(TiXmlElement* child = elem->FirstChildElement("object"); child != NULL; child = child->NextSiblingElement("object"))
     {
         Object* object = new Object;
@@ -1213,7 +1213,7 @@ bool Data::Entity::Animation::Mainline::Key::load(TiXmlElement* elem)
             delete object;
         }
     }
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("object_ref"); child != NULL; child = child->NextSiblingElement("object_ref"))
     {
         Object_Ref* object_ref = new Object_Ref;
@@ -1231,7 +1231,7 @@ bool Data::Entity::Animation::Mainline::Key::load(TiXmlElement* elem)
             delete object_ref;
         }
     }
-    
+
     return true;
 }
 
@@ -1239,16 +1239,16 @@ void Data::Entity::Animation::Mainline::Key::log(int recursive_depth) const
 {
     SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
     SCML::logi(sLogDepth - recursive_depth, "time=%d\n", time);
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     if(meta_data != NULL)
     {
         SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(bones, int, Bone_Container, item)
     {
         if(item.hasBone())
@@ -1263,7 +1263,7 @@ void Data::Entity::Animation::Mainline::Key::log(int recursive_depth) const
         }
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(objects, int, Object_Container, item)
     {
         if(item.hasObject())
@@ -1288,10 +1288,10 @@ void Data::Entity::Animation::Mainline::Key::clear()
 {
     this->id = 0;
     time = 0;
-    
+
     delete meta_data;
     meta_data = NULL;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(bones, int, Bone_Container, item)
     {
         delete item.bone;
@@ -1299,7 +1299,7 @@ void Data::Entity::Animation::Mainline::Key::clear()
     }
     SCML_END_MAP_FOREACH_CONST;
     bones.clear();
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(objects, int, Object_Container, item)
     {
         delete item.object;
@@ -1341,7 +1341,7 @@ bool Data::Entity::Animation::Mainline::Key::Bone::load(TiXmlElement* elem)
     g = xmlGetFloatAttr(elem, "g", 1.0f);
     b = xmlGetFloatAttr(elem, "b", 1.0f);
     a = xmlGetFloatAttr(elem, "a", 1.0f);
-    
+
     TiXmlElement* meta_data_child = elem->FirstChildElement("meta_data");
     if(meta_data_child != NULL)
     {
@@ -1349,7 +1349,7 @@ bool Data::Entity::Animation::Mainline::Key::Bone::load(TiXmlElement* elem)
             meta_data = new Meta_Data;
         meta_data->load(meta_data_child);
     }
-    
+
     return true;
 }
 
@@ -1366,10 +1366,10 @@ void Data::Entity::Animation::Mainline::Key::Bone::log(int recursive_depth) cons
     SCML::logi(sLogDepth - recursive_depth, "g=%f\n", g);
     SCML::logi(sLogDepth - recursive_depth, "b=%f\n", b);
     SCML::logi(sLogDepth - recursive_depth, "a=%f\n", a);
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     if(meta_data != NULL)
     {
         SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
@@ -1390,7 +1390,7 @@ void Data::Entity::Animation::Mainline::Key::Bone::clear()
     g = 1.0f;
     b = 1.0f;
     a = 1.0f;
-    
+
     delete meta_data;
     meta_data = NULL;
 }
@@ -1418,7 +1418,7 @@ bool Data::Entity::Animation::Mainline::Key::Bone_Ref::load(TiXmlElement* elem)
     parent = xmlGetIntAttr(elem, "parent", -1);
     timeline = xmlGetIntAttr(elem, "timeline", 0);
     key = xmlGetIntAttr(elem, "key", 0);
-    
+
     return true;
 }
 
@@ -1428,7 +1428,7 @@ void Data::Entity::Animation::Mainline::Key::Bone_Ref::log(int recursive_depth) 
     SCML::logi(sLogDepth - recursive_depth, "parent=%d\n", parent);
     SCML::logi(sLogDepth - recursive_depth, "timeline=%d\n", timeline);
     SCML::logi(sLogDepth - recursive_depth, "key=%d\n", key);
-    
+
 }
 
 void Data::Entity::Animation::Mainline::Key::Bone_Ref::clear()
@@ -1508,7 +1508,7 @@ bool Data::Entity::Animation::Mainline::Key::Object::load(TiXmlElement* elem)
         volume = xmlGetFloatAttr(elem, "volume", 1.0f);
         panning = xmlGetFloatAttr(elem, "panning", 0.0f);
     }
-    
+
     TiXmlElement* meta_data_child = elem->FirstChildElement("meta_data");
     if(meta_data_child != NULL)
     {
@@ -1516,7 +1516,7 @@ bool Data::Entity::Animation::Mainline::Key::Object::load(TiXmlElement* elem)
             meta_data = new Meta_Data;
         meta_data->load(meta_data_child);
     }
-    
+
     return true;
 }
 
@@ -1573,10 +1573,10 @@ void Data::Entity::Animation::Mainline::Key::Object::log(int recursive_depth) co
         SCML::logi(sLogDepth - recursive_depth, "panning=%f\n", panning);
     }
     // TODO: Remove stuff for object_types that don't need them
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     if(meta_data != NULL)
     {
         SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
@@ -1624,7 +1624,7 @@ void Data::Entity::Animation::Mainline::Key::Object::clear()
     z_index = 0;
     volume = 1.0f;
     panning = 0.0f;
-    
+
     delete meta_data;
     meta_data = NULL;
 }
@@ -1653,7 +1653,7 @@ bool Data::Entity::Animation::Mainline::Key::Object_Ref::load(TiXmlElement* elem
     timeline = xmlGetIntAttr(elem, "timeline", 0);
     key = xmlGetIntAttr(elem, "key", 0);
     z_index = xmlGetIntAttr(elem, "z_index", 0);
-    
+
     abs_x = xmlGetFloatAttr(elem, "abs_x", 0.0f);
     abs_y = xmlGetFloatAttr(elem, "abs_y", 0.0f);
     abs_pivot_x = xmlGetFloatAttr(elem, "abs_pivot_x", 0.0f);
@@ -1662,7 +1662,7 @@ bool Data::Entity::Animation::Mainline::Key::Object_Ref::load(TiXmlElement* elem
     abs_scale_x = xmlGetFloatAttr(elem, "abs_scale_x", 1.0f);
     abs_scale_y = xmlGetFloatAttr(elem, "abs_scale_y", 1.0f);
     abs_a = xmlGetFloatAttr(elem, "abs_a", 1.0f);
-    
+
     return true;
 }
 
@@ -1673,7 +1673,7 @@ void Data::Entity::Animation::Mainline::Key::Object_Ref::log(int recursive_depth
     SCML::logi(sLogDepth - recursive_depth, "timeline=%d\n", timeline);
     SCML::logi(sLogDepth - recursive_depth, "key=%d\n", key);
     SCML::logi(sLogDepth - recursive_depth, "z_index=%d\n", z_index);
-    
+
 }
 
 void Data::Entity::Animation::Mainline::Key::Object_Ref::clear()
@@ -1712,10 +1712,10 @@ bool Data::Entity::Animation::Timeline::load(TiXmlElement* elem)
     this->id = xmlGetIntAttr(elem, "id", 0);
     object_type = xmlGetStringAttr(elem, "object_type", "sprite");
     variable_type = xmlGetStringAttr(elem, "variable_type", "string");
-    
+
     if(object_type != "sound")
         name = xmlGetStringAttr(elem, "name", "");
-    
+
     if(object_type == "point")
         usage = xmlGetStringAttr(elem, "usage", "neither");
     else if(object_type == "box")
@@ -1724,7 +1724,7 @@ bool Data::Entity::Animation::Timeline::load(TiXmlElement* elem)
         usage = xmlGetStringAttr(elem, "usage", "display");
     else if(object_type == "entity")
         usage = xmlGetStringAttr(elem, "usage", "display");
-    
+
     TiXmlElement* meta_data_child = elem->FirstChildElement("meta_data");
     if(meta_data_child != NULL)
     {
@@ -1732,7 +1732,7 @@ bool Data::Entity::Animation::Timeline::load(TiXmlElement* elem)
             meta_data = new Meta_Data;
         meta_data->load(meta_data_child);
     }
-    
+
     for(TiXmlElement* child = elem->FirstChildElement("key"); child != NULL; child = child->NextSiblingElement("key"))
     {
         Key* key = new Key;
@@ -1750,7 +1750,7 @@ bool Data::Entity::Animation::Timeline::load(TiXmlElement* elem)
             delete key;
         }
     }
-    
+
     return true;
 }
 
@@ -1761,23 +1761,23 @@ void Data::Entity::Animation::Timeline::log(int recursive_depth) const
     SCML::logi(sLogDepth - recursive_depth, "object_type=%s\n", SCML_TO_CSTRING(object_type));
     SCML::logi(sLogDepth - recursive_depth, "variable_type=%s\n", SCML_TO_CSTRING(variable_type));
     SCML::logi(sLogDepth - recursive_depth, "usage=%s\n", SCML_TO_CSTRING(usage));
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     if(meta_data != NULL)
     {
         SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(keys, int, Key*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Key:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
 }
 
 void Data::Entity::Animation::Timeline::clear()
@@ -1787,10 +1787,10 @@ void Data::Entity::Animation::Timeline::clear()
     object_type = "sprite";
     variable_type = "string";
     usage = "display";
-    
+
     delete meta_data;
     meta_data = NULL;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(keys, int, Key*, item)
     {
         delete item;
@@ -1827,8 +1827,8 @@ bool Data::Entity::Animation::Timeline::Key::load(TiXmlElement* elem)
     c1 = xmlGetFloatAttr(elem, "c1", 0.0f);
     c2 = xmlGetFloatAttr(elem, "c2", 0.0f);
     spin = xmlGetIntAttr(elem, "spin", 1);
-    
-    
+
+
     TiXmlElement* meta_data_child = elem->FirstChildElement("meta_data");
     if(meta_data_child != NULL)
     {
@@ -1836,9 +1836,9 @@ bool Data::Entity::Animation::Timeline::Key::load(TiXmlElement* elem)
             meta_data = new Meta_Data_Tweenable;
         meta_data->load(meta_data_child);
     }
-    
+
     has_object = true;
-    
+
     TiXmlElement* child = elem->FirstChildElement("bone");
     if(child != NULL)
     {
@@ -1848,14 +1848,14 @@ bool Data::Entity::Animation::Timeline::Key::load(TiXmlElement* elem)
             SCML::log("SCML::Data::Entity::Animation::Timeline::Key failed to load a bone.\n");
         }
     }
-        
+
     child = elem->FirstChildElement("object");
     if(child != NULL && !object.load(child))
     {
         SCML::log("SCML::Data::Entity::Animation::Timeline::Key failed to load an object.\n");
         has_object = true;
     }
-    
+
     return true;
 }
 
@@ -1867,10 +1867,10 @@ void Data::Entity::Animation::Timeline::Key::log(int recursive_depth) const
     SCML::logi(sLogDepth - recursive_depth, "c1=%f\n", c1);
     SCML::logi(sLogDepth - recursive_depth, "c2=%f\n", c2);
     SCML::logi(sLogDepth - recursive_depth, "spin=%d\n", spin);
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     if(meta_data != NULL)
     {
         SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
@@ -1886,7 +1886,7 @@ void Data::Entity::Animation::Timeline::Key::log(int recursive_depth) const
         SCML::logi(sLogDepth - recursive_depth, "Bone:\n");
         bone.log(recursive_depth - 1);
     }
-    
+
 }
 
 void Data::Entity::Animation::Timeline::Key::clear()
@@ -1897,10 +1897,10 @@ void Data::Entity::Animation::Timeline::Key::clear()
     c1 = 0.0f;
     c2 = 0.0f;
     spin = 1;
-    
+
     delete meta_data;
     meta_data = NULL;
-    
+
     bone.clear();
     object.clear();
 }
@@ -1939,7 +1939,7 @@ bool Data::Meta_Data_Tweenable::load(TiXmlElement* elem)
             delete variable;
         }
     }
-    
+
     return true;
 }
 
@@ -1947,14 +1947,14 @@ void Data::Meta_Data_Tweenable::log(int recursive_depth) const
 {
     if(recursive_depth == 0)
         return;
-        
+
     SCML_BEGIN_MAP_FOREACH_CONST(variables, SCML_STRING, Variable*, item)
     {
         SCML::logi(sLogDepth - recursive_depth, "Variable:\n");
         item->log(recursive_depth - 1);
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
 }
 
 void Data::Meta_Data_Tweenable::clear()
@@ -1993,11 +1993,11 @@ bool Data::Meta_Data_Tweenable::Variable::load(TiXmlElement* elem)
         value_int = xmlGetIntAttr(elem, "value", 0);
     else if(type == "float")
         value_float = xmlGetFloatAttr(elem, "value", 0.0f);
-    
+
     curve_type = xmlGetStringAttr(elem, "curve_type", "linear");
     c1 = xmlGetFloatAttr(elem, "c1", 0.0f);
     c2 = xmlGetFloatAttr(elem, "c2", 0.0f);
-    
+
     return true;
 }
 
@@ -2010,11 +2010,11 @@ void Data::Meta_Data_Tweenable::Variable::log(int recursive_depth) const
         SCML::logi(sLogDepth - recursive_depth, "value=%d\n", value_int);
     else if(type == "float")
         SCML::logi(sLogDepth - recursive_depth, "value=%f\n", value_float);
-        
+
     SCML::logi(sLogDepth - recursive_depth, "curve_type=%s\n", SCML_TO_CSTRING(curve_type));
     SCML::logi(sLogDepth - recursive_depth, "c1=%f\n", c1);
     SCML::logi(sLogDepth - recursive_depth, "c2=%f\n", c2);
-    
+
 }
 
 void Data::Meta_Data_Tweenable::Variable::clear()
@@ -2023,7 +2023,7 @@ void Data::Meta_Data_Tweenable::Variable::clear()
     value_string.clear();
     value_int = 0;
     value_float = 0.0f;
-    
+
     curve_type = "linear";
     c1 = 0.0f;
     c2 = 0.0f;
@@ -2057,7 +2057,7 @@ bool Data::Entity::Animation::Timeline::Key::Bone::load(TiXmlElement* elem)
     g = xmlGetFloatAttr(elem, "g", 1.0f);
     b = xmlGetFloatAttr(elem, "b", 1.0f);
     a = xmlGetFloatAttr(elem, "a", 1.0f);
-    
+
     TiXmlElement* meta_data_child = elem->FirstChildElement("meta_data");
     if(meta_data_child != NULL)
     {
@@ -2065,7 +2065,7 @@ bool Data::Entity::Animation::Timeline::Key::Bone::load(TiXmlElement* elem)
             meta_data = new Meta_Data_Tweenable;
         meta_data->load(meta_data_child);
     }
-    
+
     return true;
 }
 
@@ -2080,16 +2080,16 @@ void Data::Entity::Animation::Timeline::Key::Bone::log(int recursive_depth) cons
     SCML::logi(sLogDepth - recursive_depth, "g=%f\n", g);
     SCML::logi(sLogDepth - recursive_depth, "b=%f\n", b);
     SCML::logi(sLogDepth - recursive_depth, "a=%f\n", a);
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     if(meta_data != NULL)
     {
         SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
         meta_data->log(recursive_depth-1);
     }
-    
+
 }
 
 void Data::Entity::Animation::Timeline::Key::Bone::clear()
@@ -2103,7 +2103,7 @@ void Data::Entity::Animation::Timeline::Key::Bone::clear()
     g = 1.0f;
     b = 1.0f;
     a = 1.0f;
-    
+
     delete meta_data;
     meta_data = NULL;
 }
@@ -2163,7 +2163,7 @@ bool Data::Entity::Animation::Timeline::Key::Object::load(TiXmlElement* elem)
         min_float = xmlGetFloatAttr(elem, "min", 0.0f);
         max_float = xmlGetFloatAttr(elem, "max", 0.0f);
     }
-    
+
     animation = xmlGetIntAttr(elem, "animation", 0);
     t = xmlGetFloatAttr(elem, "t", 0.0f);
     //if(object_type == "sound")
@@ -2171,8 +2171,8 @@ bool Data::Entity::Animation::Timeline::Key::Object::load(TiXmlElement* elem)
         volume = xmlGetFloatAttr(elem, "volume", 1.0f);
         panning = xmlGetFloatAttr(elem, "panning", 0.0f);
     }
-    
-    
+
+
     TiXmlElement* meta_data_child = elem->FirstChildElement("meta_data");
     if(meta_data_child != NULL)
     {
@@ -2180,7 +2180,7 @@ bool Data::Entity::Animation::Timeline::Key::Object::load(TiXmlElement* elem)
             meta_data = new Meta_Data_Tweenable;
         meta_data->load(meta_data_child);
     }
-    
+
     return true;
 }
 
@@ -2230,10 +2230,10 @@ void Data::Entity::Animation::Timeline::Key::Object::log(int recursive_depth) co
         SCML::logi(sLogDepth - recursive_depth, "panning=%f\n", panning);
     }
     // TODO: Remove stuff for object_types that don't need them
-    
+
     if(recursive_depth == 0)
         return;
-        
+
     if(meta_data != NULL)
     {
         SCML::logi(sLogDepth - recursive_depth, "Meta_Data:\n");
@@ -2298,13 +2298,13 @@ bool Data::Character_Map::load(TiXmlElement* elem)
 {
     this->id = xmlGetIntAttr(elem, "id", 0);
     name = xmlGetStringAttr(elem, "name", "");
-    
+
     TiXmlElement* child = elem->FirstChildElement("map");
     if(child == NULL || !map.load(child))
     {
         SCML::log("SCML::Data::Entity failed to load an animation.\n");
     }
-    
+
     return true;
 }
 
@@ -2312,20 +2312,20 @@ void Data::Character_Map::log(int recursive_depth) const
 {
     SCML::logi(sLogDepth - recursive_depth, "id=%d\n", id);
     SCML::logi(sLogDepth - recursive_depth, "name=%s\n", SCML_TO_CSTRING(name));
-    
+
     if(recursive_depth == 0)
         return;
-    
+
     SCML::logi(sLogDepth - recursive_depth, "Map:\n");
     map.log(recursive_depth - 1);
-    
+
 }
 
 void Data::Character_Map::clear()
 {
     this->id = 0;
     name.clear();
-    
+
     map.clear();
 }
 
@@ -2353,7 +2353,7 @@ bool Data::Character_Map::Map::load(TiXmlElement* elem)
     target_atlas = xmlGetIntAttr(elem, "target_atlas", 0);
     target_folder = xmlGetIntAttr(elem, "target_folder", 0);
     target_file = xmlGetIntAttr(elem, "target_file", 0);
-    
+
     return true;
 }
 
@@ -2404,7 +2404,7 @@ bool Data::Document_Info::load(TiXmlElement* elem)
     version = xmlGetStringAttr(elem, "version", "version not specified");
     last_modified = xmlGetStringAttr(elem, "last_modified", "date and time not included");
     notes = xmlGetStringAttr(elem, "notes", "no additional notes");
-    
+
     return true;
 }
 
@@ -2453,7 +2453,7 @@ void FileSystem::load(SCML::Data* data)
 {
     if(data == NULL || SCML_STRING_SIZE(data->name) == 0)
         return;
-    
+
     SCML_STRING basedir;
     if(!pathIsAbsolute(data->name))
     {
@@ -2464,7 +2464,7 @@ void FileSystem::load(SCML::Data* data)
         if(SCML_STRING_SIZE(basedir) > 0 && basedir[SCML_STRING_SIZE(basedir)-1] != '/')
             SCML_STRING_APPEND(basedir, '/');
     }
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(data->folders, int, SCML::Data::Folder*, folder)
     {
         SCML_BEGIN_MAP_FOREACH_CONST(folder->files, int, SCML::Data::Folder::File*, file)
@@ -2502,7 +2502,7 @@ Entity::Entity(SCML::Data* data, const char* entityName, int animation, int key)
     load(data);
     SCML_BEGIN_MAP_FOREACH_CONST(data->entities, int, SCML::Data::Entity*, entity_ptr)
     {
-    	if (std::strcmp( entity_ptr->name.c_str(), entityName ) == 0) 
+    	if (std::strcmp( entity_ptr->name.c_str(), entityName ) == 0)
     	{
     		entity = entity_ptr->id;
     		break;
@@ -2520,16 +2520,29 @@ void Entity::load(SCML::Data* data)
 {
     if(data == NULL)
         return;
-    
+
     SCML::Data::Entity* entity_ptr = SCML_MAP_FIND(data->entities, entity);
     if(entity_ptr == NULL)
         return;
-    
+
     name = entity_ptr->name;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(entity_ptr->animations, int, SCML::Data::Entity::Animation*, item)
     {
         SCML_MAP_INSERT_ONLY(animations, item->id, new Animation(item));
+    }
+    SCML_END_MAP_FOREACH_CONST;
+
+    // Need to keep track of initial pivots
+    SCML_BEGIN_MAP_FOREACH_CONST(data->folders, int, SCML::Data::Folder*, iFolder)
+    {
+        SCML_BEGIN_MAP_FOREACH_CONST(iFolder->files, int, SCML::Data::Folder::File*, iFile)
+        {
+            FolderFile_t folderFile = FolderFile_t(iFolder->id, iFile->id);
+            Pivot_t pivot = Pivot_t(iFile->pivot_x, iFile->pivot_y);
+            SCML_MAP_INSERT_ONLY(m_pivots, folderFile, pivot);
+        }
+        SCML_END_MAP_FOREACH_CONST;
     }
     SCML_END_MAP_FOREACH_CONST;
 }
@@ -2540,7 +2553,7 @@ void Entity::clear()
     animation = -1;
     key = -1;
     time = 0;
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(animations, int, Animation*, item)
     {
         delete item;
@@ -2561,7 +2574,7 @@ void Entity::startAnimation(const char* animationName)
     SCML::Entity::Animation* animation_ptr = getAnimation(animationName);
 	if (animation_ptr == NULL) {
 		this->animation = -1;
-	} else {	
+	} else {
     	this->animation = animation_ptr->id;
     }
     key = 0;
@@ -2573,23 +2586,23 @@ void Entity::update(int dt_ms)
 {
     if(entity < 0 || animation < 0 || key < 0)
         return;
-    
+
     SCML::Entity::Animation* animation_ptr = getAnimation(animation);
     if(animation_ptr == NULL)
         return;
-    
+
     time += dt_ms;
-    
+
     if(animation_ptr->looping == "true")
     {
         time %= animation_ptr->length;
-    } 
-    else 
+    }
+    else
     {
         if(time > animation_ptr->length)
             time = animation_ptr->length;
     }
-    
+
     for(key = 0; key+1 < (int)SCML_MAP_SIZE(animation_ptr->mainline.keys); key++)
     {
         if(getKey(animation, key + 1)->time > time)
@@ -2612,7 +2625,7 @@ static void rotate_point(float& x, float& y, float angle, float origin_x, float 
     float ynew = (x * s) + (y * c);
     xnew += origin_x;
     ynew += origin_y;
-    
+
     x = xnew;
     y = ynew;
 }
@@ -2623,22 +2636,22 @@ void Entity::draw(float x, float y, float angle, float scale_x, float scale_y)
     Animation::Mainline::Key* key_ptr = getKey(animation, key);
     if(key_ptr == NULL)
         return;
-    
+
     convert_to_SCML_coords(x, y, angle);
-    
+
     int nextKeyID = getNextKeyID(animation, key);
     Animation::Mainline::Key* nextkey_ptr = getKey(animation, nextKeyID);
     if(nextkey_ptr == NULL)
         nextkey_ptr = key_ptr;
-    
+
     // Build up the bone transform hierarchy
     Transform base_transform(x, y, angle, scale_x, scale_y);
     if(bone_transform_state.should_rebuild(entity, animation, key, time, base_transform))
     {
         bone_transform_state.rebuild(entity, animation, key, time, this, base_transform);
     }
-    
-    
+
+
     // Go through each object
     SCML_BEGIN_MAP_FOREACH_CONST(key_ptr->objects, int, Animation::Mainline::Key::Object_Container, item)
     {
@@ -2654,42 +2667,51 @@ void Entity::draw(float x, float y, float angle, float scale_x, float scale_y)
     SCML_END_MAP_FOREACH_CONST;
 }
 
+Entity::Pivot_t Entity::getImagePivots(int folder, int file) const
+{
+    return SCML_MAP_FIND(m_pivots, SCML_PAIR(int, int)(folder, file));
+}
 
 void Entity::draw_simple_object(Animation::Mainline::Key::Object* obj1)
 {
     // Get parent bone transform
     Transform parent_transform;
-    
+
     if(obj1->parent < 0)
         parent_transform = bone_transform_state.base_transform;
     else
         parent_transform = bone_transform_state.transforms[obj1->parent];
-    
-    
+
+
     // Set object transform
     Transform obj_transform(obj1->x, obj1->y, obj1->angle, obj1->scale_x, obj1->scale_y);
-    
+
     // Transform the sprite by the parent transform.
     obj_transform.apply_parent_transform(parent_transform);
-    
-    
+
+
     // Transform the sprite by its own transform now.
-    
+
     float pivot_x_ratio = obj1->pivot_x;
     float pivot_y_ratio = obj1->pivot_y;
-    
+
     // No image tweening
-    std::pair<unsigned int, unsigned int> img_dims = getImageDimensions(obj1->folder, obj1->file);
-    
+    SCML_PAIR(float, float) img_pivot = getImagePivots(obj1->folder, obj1->file);
+    SCML_PAIR(unsigned int, unsigned int) img_dims = getImageDimensions(obj1->folder, obj1->file);
+
+    // The origin
+    float origin_x = SCML_PAIR_FIRST(img_pivot) * img_dims.first;
+    float origin_y = (SCML_PAIR_SECOND(img_pivot) - 1.f) * img_dims.second;
+
     // Rotate about the pivot point and draw from the center of the image
-    float offset_x = (pivot_x_ratio - 0.5f)*SCML_PAIR_FIRST(img_dims);
-    float offset_y = (pivot_y_ratio - 0.5f)*SCML_PAIR_SECOND(img_dims);
+    float offset_x = origin_x + (pivot_x_ratio - 0.5f)*SCML_PAIR_FIRST(img_dims);
+    float offset_y = origin_y + (pivot_y_ratio - 0.5f)*SCML_PAIR_SECOND(img_dims);
     float sprite_x = -offset_x*obj_transform.scale_x;
     float sprite_y = -offset_y*obj_transform.scale_y;
-    
+
     bool flipped = ((obj_transform.scale_x < 0) != (obj_transform.scale_y < 0));
     rotate_point(sprite_x, sprite_y, obj_transform.angle, obj_transform.x, obj_transform.y, flipped);
-    
+
     // Let the renderer draw it
     draw_internal(obj1->folder, obj1->file, sprite_x, sprite_y, obj_transform.angle, obj_transform.scale_x, obj_transform.scale_y);
 }
@@ -2707,7 +2729,7 @@ void Entity::draw_tweened_object(Animation::Mainline::Key::Object_Ref* ref)
         t_key2 = t_key1;
     if(t_key1 == NULL || !t_key1->has_object || !t_key2->has_object)
         return;
-    
+
     Animation::Timeline::Key::Object* obj1 = &t_key1->object;
     Animation::Timeline::Key::Object* obj2 = &t_key2->object;
     if(obj2 == NULL)
@@ -2727,34 +2749,39 @@ void Entity::draw_tweened_object(Animation::Mainline::Key::Object_Ref* ref)
             parent_transform = bone_transform_state.base_transform;
         else
             parent_transform = bone_transform_state.transforms[ref->parent];
-        
+
         // Set object transform
         Transform obj_transform(obj1->x, obj1->y, obj1->angle, obj1->scale_x, obj1->scale_y);
-        
+
         // Tween with next key's object
         obj_transform.lerp(Transform(obj2->x, obj2->y, obj2->angle, obj2->scale_x, obj2->scale_y), t, t_key1->spin);
-        
+
         // Transform the sprite by the parent transform.
         obj_transform.apply_parent_transform(parent_transform);
-        
-        
+
+
         // Transform the sprite by its own transform now.
-        
+
         float pivot_x_ratio = lerp(obj1->pivot_x, obj2->pivot_x, t);
         float pivot_y_ratio = lerp(obj1->pivot_y, obj2->pivot_y, t);
-        
+
         // No image tweening
-        std::pair<unsigned int, unsigned int> img_dims = getImageDimensions(obj1->folder, obj1->file);
-        
+        SCML_PAIR(float, float) img_pivot = getImagePivots(obj1->folder, obj1->file);
+        SCML_PAIR(unsigned int, unsigned int) img_dims = getImageDimensions(obj1->folder, obj1->file);
+
+        // The origin
+        float origin_x = SCML_PAIR_FIRST(img_pivot) * img_dims.first;
+        float origin_y = (SCML_PAIR_SECOND(img_pivot) - 1.f) * img_dims.second;
+
         // Rotate about the pivot point and draw from the center of the image
-        float offset_x = (pivot_x_ratio - 0.5f)*SCML_PAIR_FIRST(img_dims);
-        float offset_y = (pivot_y_ratio - 0.5f)*SCML_PAIR_SECOND(img_dims);
+        float offset_x = origin_x + (pivot_x_ratio - 0.5f)*SCML_PAIR_FIRST(img_dims);
+        float offset_y = origin_y + (pivot_y_ratio - 0.5f)*SCML_PAIR_SECOND(img_dims);
         float sprite_x = -offset_x*obj_transform.scale_x;
         float sprite_y = -offset_y*obj_transform.scale_y;
-        
+
         bool flipped = ((obj_transform.scale_x < 0) != (obj_transform.scale_y < 0));
         rotate_point(sprite_x, sprite_y, obj_transform.angle, obj_transform.x, obj_transform.y, flipped);
-        
+
         // Let the renderer draw it
         draw_internal(obj1->folder, obj1->file, sprite_x, sprite_y, obj_transform.angle, obj_transform.scale_x, obj_transform.scale_y);
     }
@@ -2785,7 +2812,7 @@ void Transform::lerp(const Transform& transform, float t, int spin)
 {
     x = SCML::lerp(x, transform.x, t);
     y = SCML::lerp(y, transform.y, t);
-    
+
     // 'spin' is based on what you are coming from (key1)
     if(spin != 0)
     {
@@ -2796,7 +2823,7 @@ void Transform::lerp(const Transform& transform, float t, int spin)
         else
             angle = SCML::lerp(angle, transform.angle, t);
     }
-        
+
     scale_x = SCML::lerp(scale_x, transform.scale_x, t);
     scale_y = SCML::lerp(scale_y, transform.scale_y, t);
 }
@@ -2805,10 +2832,10 @@ void Transform::apply_parent_transform(const Transform& parent)
 {
     x *= parent.scale_x;
     y *= parent.scale_y;
-    
+
     bool flipped = ((parent.scale_x < 0) != (parent.scale_y < 0));
     rotate_point(x, y, parent.angle, parent.x, parent.y, flipped);
-    
+
     angle += parent.angle;
     scale_x *= parent.scale_x;
     scale_y *= parent.scale_y;
@@ -2823,10 +2850,10 @@ Entity::Bone_Transform_State::Bone_Transform_State()
 
 bool Entity::Bone_Transform_State::should_rebuild(int entity, int animation, int key, int time, const Transform& base_transform)
 {
-    return (entity != this->entity || 
-            animation != this->animation || 
-            key != this->key || 
-            time != this->time || 
+    return (entity != this->entity ||
+            animation != this->animation ||
+            key != this->key ||
+            time != this->time ||
             this->base_transform != base_transform);
 }
 
@@ -2840,17 +2867,17 @@ void Entity::Bone_Transform_State::rebuild(int entity, int animation, int key, i
         this->time = -1;
         return;
     }
-    
+
     this->entity = entity;
     this->animation = animation;
     this->key = key;
     this->time = time;
     this->base_transform = base_transform;
     SCML_VECTOR_CLEAR(transforms);
-    
+
     Entity::Animation::Mainline::Key* key_ptr = entity_ptr->getKey(animation, key);
     // FIXME: Check key_ptr == NULL here?
-    
+
     // Resize the transform vector according to the biggest bone index
     int max_index = -1;
     SCML_BEGIN_MAP_FOREACH_CONST(key_ptr->bones, int, Animation::Mainline::Key::Bone_Container, item)
@@ -2860,26 +2887,26 @@ void Entity::Bone_Transform_State::rebuild(int entity, int animation, int key, i
             index = item.bone_ref->id;
         else if(item.hasBone())
             index = item.bone->id;
-        
+
         if(max_index < index)
             max_index = index;
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
     if(max_index < 0)
         return;
-    
+
     SCML_VECTOR_RESIZE(transforms, max_index+1);
-    
+
     Entity::Animation* animation_ptr = entity_ptr->getAnimation(animation);
-    
+
     // Calculate and store the transforms
     SCML_BEGIN_MAP_FOREACH_CONST(key_ptr->bones, int, Animation::Mainline::Key::Bone_Container, item)
     {
         if(item.hasBone_Ref())
         {
             Animation::Mainline::Key::Bone_Ref* ref = item.bone_ref;
-            
+
             // Dereference bone_refs
             Animation::Timeline::Key* b_key1 = entity_ptr->getTimelineKey(animation, ref->timeline, ref->key);
             Animation::Timeline::Key* b_key2 = entity_ptr->getTimelineKey(animation, ref->timeline, ref->key+1);
@@ -2892,54 +2919,54 @@ void Entity::Bone_Transform_State::rebuild(int entity, int animation, int key, i
                     t = (time - b_key1->time)/float(b_key2->time - b_key1->time);
                 else if(b_key2->time < b_key1->time)
                     t = (time - b_key1->time)/float(animation_ptr->length - b_key1->time);
-                
+
                 Entity::Animation::Timeline::Key::Bone* bone1 = &b_key1->bone;
                 Entity::Animation::Timeline::Key::Bone* bone2 = &b_key2->bone;
-                
+
                 // Assuming that bones come in hierarchical order so that the parents have already been processed.
                 Transform parent_transform;
                 if(ref->parent < 0)
                     parent_transform = base_transform;
                 else
                     parent_transform = transforms[ref->parent];
-                
+
                 // Set bone transform
                 Transform b_transform(bone1->x, bone1->y, bone1->angle, bone1->scale_x, bone1->scale_y);
-                
+
                 // Tween with next key's bone
                 b_transform.lerp(Transform(bone2->x, bone2->y, bone2->angle, bone2->scale_x, bone2->scale_y), t, b_key1->spin);
-                
+
                 // Transform the bone by the parent transform.
                 b_transform.apply_parent_transform(parent_transform);
-                
+
                 transforms[ref->id] = b_transform;
-                
+
             }
-            
+
         }
         else if(item.hasBone())
         {
             Animation::Mainline::Key::Bone* bone1 = item.bone;
-            
+
             // Assuming that bones come in hierarchical order so that the parents have already been processed.
             Transform parent_transform;
             if(bone1->parent < 0)
                 parent_transform = base_transform;
             else
                 parent_transform = transforms[bone1->parent];
-            
+
             // Set bone transform
             Transform b_transform(bone1->x, bone1->y, bone1->angle, bone1->scale_x, bone1->scale_y);
-            
+
             // Transform the bone by the parent transform.
             b_transform.apply_parent_transform(parent_transform);
-            
+
             transforms[bone1->id] = b_transform;
-            
+
         }
     }
     SCML_END_MAP_FOREACH_CONST;
-    
+
 }
 
 
@@ -3013,8 +3040,8 @@ Entity::Animation::Mainline::Key::Key(SCML::Data::Entity::Animation::Mainline::K
         }
     }
     SCML_END_MAP_FOREACH_CONST;
-    
-    
+
+
     SCML_BEGIN_MAP_FOREACH_CONST(key->objects, int, SCML::Data::Entity::Animation::Mainline::Key::Object_Container, item)
     {
         if(item.hasObject())
@@ -3044,7 +3071,7 @@ void Entity::Animation::Mainline::Key::clear()
     }
     SCML_END_MAP_FOREACH_CONST;
     bones.clear();
-    
+
     SCML_BEGIN_MAP_FOREACH_CONST(objects, int, Object_Container, item)
     {
         delete item.object;
@@ -3124,7 +3151,7 @@ void Entity::Animation::Timeline::clear()
 Entity::Animation::Timeline::Key::Key(SCML::Data::Entity::Animation::Timeline::Key* key)
     : id(key->id), time(key->time), curve_type(key->curve_type), c1(key->c1), c2(key->c2), spin(key->spin), has_object(key->has_object), bone(&key->bone), object(&key->object)
 {
-    
+
 }
 Entity::Animation::Timeline::Key::~Key(){
     clear();
@@ -3154,12 +3181,12 @@ Entity::Animation::Timeline::Key::Object::Object(SCML::Data::Entity::Animation::
     , value_float(object->value_float), min_float(object->min_float), max_float(object->max_float), animation(object->animation), t(object->t)
     , volume(object->volume), panning(object->panning)
 {
-    
+
 }
 
 void Entity::Animation::Timeline::Key::Object::clear()
 {
-    
+
 }
 
 
@@ -3181,7 +3208,7 @@ Entity::Animation* Entity::getAnimation(const char* animationName) const
 {
     SCML_BEGIN_MAP_FOREACH_CONST(animations, int, Entity::Animation*, anim_ptr)
     {
-    	if (std::strcmp( anim_ptr->name.c_str(), animationName ) == 0) 
+    	if (std::strcmp( anim_ptr->name.c_str(), animationName ) == 0)
     	{
     		return anim_ptr;
     	}
@@ -3195,7 +3222,7 @@ Entity::Animation::Mainline::Key* Entity::getKey(int animation, int key) const
     Animation* a = SCML_MAP_FIND(animations, animation);
     if(a == NULL)
         return NULL;
-    
+
     return SCML_MAP_FIND(a->mainline.keys, key);
 }
 
@@ -3205,15 +3232,15 @@ Entity::Animation::Mainline::Key::Bone_Ref* Entity::getBoneRef(int animation, in
     Animation* a = SCML_MAP_FIND(animations, animation);
     if(a == NULL)
         return NULL;
-    
+
     Animation::Mainline::Key* k = SCML_MAP_FIND(a->mainline.keys, key);
     if(k == NULL)
         return NULL;
-    
+
     Animation::Mainline::Key::Bone_Container b = SCML_MAP_FIND(k->bones, bone_ref);
     if(!b.hasBone_Ref())
         return NULL;
-    
+
     return b.bone_ref;
 }
 
@@ -3222,15 +3249,15 @@ Entity::Animation::Mainline::Key::Object_Ref* Entity::getObjectRef(int animation
     Animation* a = SCML_MAP_FIND(animations, animation);
     if(a == NULL)
         return NULL;
-    
+
     Animation::Mainline::Key* k = SCML_MAP_FIND(a->mainline.keys, key);
     if(k == NULL)
         return NULL;
-    
+
     Animation::Mainline::Key::Object_Container o = SCML_MAP_FIND(k->objects, object_ref);
     if(!o.hasObject_Ref())
         return NULL;
-    
+
     return o.object_ref;
 }
 
@@ -3239,12 +3266,12 @@ int Entity::getNextKeyID(int animation, int lastKey) const
 {
     if(entity < 0 || animation < 0 || lastKey < 0)
         return -1;
-    
-    
+
+
     Animation* animation_ptr = getAnimation(animation);
     if(animation_ptr == NULL)
         return -2;
-    
+
     if(animation_ptr->looping == "true")
     {
         // If we've reached the end of the keys, loop.
@@ -3274,11 +3301,11 @@ Entity::Animation::Timeline::Key* Entity::getTimelineKey(int animation, int time
     Animation* a = SCML_MAP_FIND(animations, animation);
     if(a == NULL)
         return NULL;
-    
+
     Animation::Timeline* t = SCML_MAP_FIND(a->timelines, timeline);
     if(t == NULL)
         return NULL;
-  
+
     int no_keys = SCML_MAP_SIZE(t->keys);
     if(key >= no_keys)
     {
@@ -3297,15 +3324,15 @@ Entity::Animation::Timeline::Key::Object* Entity::getTimelineObject(int animatio
     Animation* a = SCML_MAP_FIND(animations, animation);
     if(a == NULL)
         return NULL;
-    
+
     Animation::Timeline* t = SCML_MAP_FIND(a->timelines, timeline);
     if(t == NULL)
         return NULL;
-    
+
     Animation::Timeline::Key* k = SCML_MAP_FIND(t->keys, key);
     if(k == NULL || !k->has_object)
         return NULL;
-    
+
     return &k->object;
 }
 
@@ -3314,15 +3341,15 @@ Entity::Animation::Timeline::Key::Bone* Entity::getTimelineBone(int animation, i
     Animation* a = SCML_MAP_FIND(animations, animation);
     if(a == NULL)
         return NULL;
-    
+
     Animation::Timeline* t = SCML_MAP_FIND(a->timelines, timeline);
     if(t == NULL)
         return NULL;
-    
+
     Animation::Timeline::Key* k = SCML_MAP_FIND(t->keys, key);
     if(k == NULL || k->has_object)
         return NULL;
-    
+
     return &k->bone;
 }
 
@@ -3332,7 +3359,7 @@ int Entity::getNumBones() const
     Animation::Mainline::Key* key_ptr = getKey(animation, key);
     if(key_ptr == NULL)
         return 0;
-    
+
     return SCML_MAP_SIZE(key_ptr->bones);
 }
 
@@ -3342,7 +3369,7 @@ int Entity::getNumObjects() const
     Animation::Mainline::Key* key_ptr = getKey(animation, key);
     if(key_ptr == NULL)
         return 0;
-    
+
     return SCML_MAP_SIZE(key_ptr->objects);
 }
 
@@ -3352,14 +3379,14 @@ bool Entity::getBoneTransform(Transform& result, int boneID)
     Animation::Mainline::Key* key_ptr = getKey(animation, key);
     if(key_ptr == NULL)
         return false;
-    
+
     // Find object
     Animation::Mainline::Key::Bone_Container item = SCML_MAP_FIND(key_ptr->bones, boneID);
     if(item.hasBone())
     {
         // Get bone transform
         result = bone_transform_state.transforms[item.bone->id];
-        
+
         // FIXME: Actually the inverse conversion...
         convert_to_SCML_coords(result.x, result.y, result.angle);
         return true;
@@ -3368,7 +3395,7 @@ bool Entity::getBoneTransform(Transform& result, int boneID)
     {
         // Get bone transform
         result = bone_transform_state.transforms[item.bone_ref->id];
-        
+
         // FIXME: Actually the inverse conversion...
         convert_to_SCML_coords(result.x, result.y, result.angle);
         return true;
@@ -3383,7 +3410,7 @@ bool Entity::getObjectTransform(Transform& result, int objectID)
     Animation::Mainline::Key* key_ptr = getKey(animation, key);
     if(key_ptr == NULL)
         return false;
-    
+
     // Find object
     Animation::Mainline::Key::Object_Container item = SCML_MAP_FIND(key_ptr->objects, objectID);
     if(item.hasObject())
@@ -3402,47 +3429,47 @@ bool Entity::getSimpleObjectTransform(Transform& result, SCML::Entity::Animation
 {
     if(obj1 == NULL)
         return false;
-    
+
     // Get parent bone transform
     Transform parent_transform;
-    
+
     if(obj1->parent < 0)
         parent_transform = bone_transform_state.base_transform;
     else
         parent_transform = bone_transform_state.transforms[obj1->parent];
-    
-    
+
+
     // Set object transform
     Transform obj_transform(obj1->x, obj1->y, obj1->angle, obj1->scale_x, obj1->scale_y);
-    
+
     // Transform the sprite by the parent transform.
     obj_transform.apply_parent_transform(parent_transform);
-    
-    
+
+
     // Transform the sprite by its own transform now.
-    
+
     float pivot_x_ratio = obj1->pivot_x;
     float pivot_y_ratio = obj1->pivot_y;
-    
+
     // No image tweening
     std::pair<unsigned int, unsigned int> img_dims = getImageDimensions(obj1->folder, obj1->file);
-    
+
     // Rotate about the pivot point and draw from the center of the image
     float offset_x = (pivot_x_ratio - 0.5f)*SCML_PAIR_FIRST(img_dims);
     float offset_y = (pivot_y_ratio - 0.5f)*SCML_PAIR_SECOND(img_dims);
     float sprite_x = -offset_x*obj_transform.scale_x;
     float sprite_y = -offset_y*obj_transform.scale_y;
-    
+
     bool flipped = ((obj_transform.scale_x < 0) != (obj_transform.scale_y < 0));
     rotate_point(sprite_x, sprite_y, obj_transform.angle, obj_transform.x, obj_transform.y, flipped);
-    
+
     // Save the result
     result.x = sprite_x;
     result.y = sprite_y;
     result.angle = flipped? -obj_transform.angle : obj_transform.angle;
     result.scale_x = obj_transform.scale_x;
     result.scale_y = obj_transform.scale_y;
-    
+
     // FIXME: Actually the inverse conversion...
     convert_to_SCML_coords(result.x, result.y, result.angle);
     return true;
@@ -3458,62 +3485,62 @@ bool Entity::getTweenedObjectTransform(Transform& result, SCML::Entity::Animatio
         t_key2 = t_key1;
     if(t_key1 == NULL || !t_key1->has_object || !t_key2->has_object)
         return false;
-    
+
     Animation::Timeline::Key::Object* obj1 = &t_key1->object;
     Animation::Timeline::Key::Object* obj2 = &t_key2->object;
     if(obj2 == NULL)
         obj2 = obj1;
     if(obj1 == NULL)
         return false;
-    
+
     // Get interpolation (tweening) factor
     float t = 0.0f;
     if(t_key2->time > t_key1->time)
         t = (time - t_key1->time)/float(t_key2->time - t_key1->time);
     else if(t_key2->time < t_key1->time)
         t = (time - t_key1->time)/float(animation_ptr->length - t_key1->time);
-    
+
     // Get parent bone transform
     Transform parent_transform;
     if(ref->parent < 0)
         parent_transform = bone_transform_state.base_transform;
     else
         parent_transform = bone_transform_state.transforms[ref->parent];
-    
+
     // Set object transform
     Transform obj_transform(obj1->x, obj1->y, obj1->angle, obj1->scale_x, obj1->scale_y);
-    
+
     // Tween with next key's object
     obj_transform.lerp(Transform(obj2->x, obj2->y, obj2->angle, obj2->scale_x, obj2->scale_y), t, t_key1->spin);
-    
+
     // Transform the sprite by the parent transform.
     obj_transform.apply_parent_transform(parent_transform);
 
-    
+
     // Transform the sprite by its own transform now.
-    
+
     float pivot_x_ratio = lerp(obj1->pivot_x, obj2->pivot_x, t);
     float pivot_y_ratio = lerp(obj1->pivot_y, obj2->pivot_y, t);
-    
+
     // No image tweening
     std::pair<unsigned int, unsigned int> img_dims = getImageDimensions(obj1->folder, obj1->file);
-    
+
     // Rotate about the pivot point and draw from the center of the image
     float offset_x = (pivot_x_ratio - 0.5f)*SCML_PAIR_FIRST(img_dims);
     float offset_y = (pivot_y_ratio - 0.5f)*SCML_PAIR_SECOND(img_dims);
     float sprite_x = -offset_x*obj_transform.scale_x;
     float sprite_y = -offset_y*obj_transform.scale_y;
-    
+
     bool flipped = ((obj_transform.scale_x < 0) != (obj_transform.scale_y < 0));
     rotate_point(sprite_x, sprite_y, obj_transform.angle, obj_transform.x, obj_transform.y, flipped);
-    
+
     // Save the result
     result.x = sprite_x;
     result.y = sprite_y;
     result.angle = flipped? -obj_transform.angle : obj_transform.angle;
     result.scale_x = obj_transform.scale_x;
     result.scale_y = obj_transform.scale_y;
-    
+
     // FIXME: Actually the inverse conversion...
     convert_to_SCML_coords(result.x, result.y, result.angle);
     return true;
